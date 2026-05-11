@@ -119,10 +119,20 @@ async def transcribe(file: UploadFile = File(...)):
 
 @app.post("/summarize")
 async def summarize(text: str = Form(...)):
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    prompt = f"Resume el siguiente contenido académico de forma estructurada y profesional: {text}"
-    response = model.generate_content(prompt)
-    return {"summary": response.text}
+    try:
+        completion = groq_client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=[
+                {"role": "system", "content": "Eres un experto académico de la AAUCA. Resume el contenido de forma estructurada, usando negritas y puntos clave."},
+                {"role": "user", "content": f"Resume esto: {text}"}
+            ],
+            temperature=0.5,
+            max_tokens=1024,
+        )
+        return {"summary": completion.choices[0].message.content}
+    except Exception as e:
+        logger.error(f"Summarize error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error en Groq al resumir.")
 
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
@@ -150,36 +160,28 @@ async def chat_with_docs(question: str = Form(...), file_id: str = Form(None)):
         # Buscar contexto en Supabase
         context_chunks = await rag.query(question, file_id)
         
-        # Si no hay contexto y hay un archivo seleccionado, avisar
         if not context_chunks and file_id:
             context_text = "No se encontró información específica en el documento cargado."
         else:
             context_text = "\n".join([c['content'] for c in context_chunks]) if context_chunks else "Sin contexto adicional."
         
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"""
-        ERES: Un Tutor de IA de Élite de la Universidad Afroamericana de África Central (AAUCA).
-        TU MISIÓN: Responder de forma brillante, académica y precisa basándote en el CONTEXTO proporcionado.
+        completion = groq_client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=[
+                {
+                    "role": "system", 
+                    "content": f"Eres el Tutor de IA de Élite de la AAUCA, desarrollado por Tranquilino Mba Ncogo. Tu misión es ayudar a los estudiantes basándote en este contexto:\n\n{context_text}"
+                },
+                {"role": "user", "content": question}
+            ],
+            temperature=0.7,
+            max_tokens=2048,
+        )
         
-        REGLAS DE ORO:
-        1. Si la respuesta está en el CONTEXTO, dalo de forma estructurada.
-        2. Si no está en el CONTEXTO, utiliza tu conocimiento general pero menciona que no está en el libro.
-        3. Mantén un tono motivador y profesional.
-        
-        CONTEXTO DEL LIBRO:
-        {context_text}
-        
-        PREGUNTA DEL ESTUDIANTE:
-        {question}
-        
-        RESPUESTA ACADÉMICA:
-        """
-        
-        response = model.generate_content(prompt)
-        return {"response": response.text}
+        return {"response": completion.choices[0].message.content}
     except Exception as e:
         logger.error(f"Chat error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error interno en el motor de IA. Verifica la base de datos.")
+        raise HTTPException(status_code=500, detail="Error en el motor Groq. Verifica la API Key.")
 
 if __name__ == "__main__":
     import uvicorn
