@@ -59,39 +59,63 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-black text-white overflow-hidden">
+    <div className="flex h-screen bg-black text-white overflow-hidden relative">
+      {/* Background Campus Overlay */}
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+        <img src="/img/campus.png" alt="" className="w-full h-full object-cover grayscale" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
+      </div>
+
       {/* Sidebar - Gestión de Documentos */}
-      <aside className="w-80 border-r border-white/5 bg-white/2 flex flex-col p-6 hidden md:flex">
-        <div className="mb-10">
-          <img src="/img/logo.png" alt="AAUCA" className="h-10 mb-6 opacity-80" />
-          <h2 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.3em]">Mis Documentos</h2>
+      <aside className="w-80 border-r border-white/5 bg-black/40 backdrop-blur-3xl flex flex-col p-8 relative z-10 hidden md:flex">
+        <div className="mb-12">
+          <Link href="/">
+            <img src="/img/logo.png" alt="AAUCA" className="h-12 mb-8 hover:scale-105 transition-transform" />
+          </Link>
+          <div className="h-[1px] w-full bg-gradient-to-r from-yellow-400/50 to-transparent mb-8"></div>
+          <h2 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.4em] mb-6">Biblioteca Personal</h2>
+          
+          <button className="w-full py-5 rounded-[2rem] bg-yellow-400 text-black flex items-center justify-center gap-3 text-sm font-black uppercase tracking-tighter hover:bg-yellow-300 transition-all shadow-xl shadow-yellow-500/10">
+            <Upload className="w-4 h-4" /> Subir PDF
+          </button>
         </div>
         
-        <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center gap-3 mb-8 text-sm font-bold">
-          <Upload className="w-4 h-4" /> Subir Libro (PDF)
-        </button>
-
-        <div className="flex-1 space-y-4">
-          <div className="p-4 rounded-2xl bg-yellow-400/10 border border-yellow-400/20 flex items-center gap-4 group cursor-pointer">
-            <FileText className="w-5 h-5 text-yellow-400" />
+        <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar">
+          <div className="p-5 rounded-[2rem] bg-white/5 border border-white/10 flex items-center gap-4 group cursor-pointer hover:bg-white/10 transition-all">
+            <div className="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center border border-yellow-400/20">
+              <FileText className="w-5 h-5 text-yellow-400" />
+            </div>
             <div className="overflow-hidden">
-              <p className="text-xs font-black truncate">Calculo_Diferencial.pdf</p>
-              <p className="text-[9px] text-yellow-400/50 uppercase font-bold">Analizado</p>
+              <p className="text-xs font-black truncate uppercase tracking-tighter">Calculo_Diferencial.pdf</p>
+              <p className="text-[8px] text-yellow-400/60 uppercase font-black tracking-widest mt-1">Sincronizado</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-auto pt-8 border-t border-white/5">
+          <div className="p-4 rounded-2xl bg-white/5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-yellow-600 flex items-center justify-center font-black text-black text-xs">U</div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-tighter">Usuario Premium</p>
+              <p className="text-[8px] text-gray-500 font-bold">AAUCA STUDENT</p>
             </div>
           </div>
         </div>
       </aside>
 
       {/* Área Principal de Chat */}
-      <main className="flex-1 flex flex-col relative">
-        <header className="p-6 border-b border-white/5 flex items-center justify-between bg-black/50 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-500/20">
-              <BrainCircuit className="w-6 h-6 text-black" />
+      <main className="flex-1 flex flex-col relative z-10 bg-black/20 backdrop-blur-sm">
+        <header className="p-8 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-2xl">
+          <div className="flex items-center gap-6">
+            <div className="w-14 h-14 rounded-2xl bg-yellow-400 flex items-center justify-center shadow-2xl shadow-yellow-500/40 border-4 border-black">
+              <BrainCircuit className="w-8 h-8 text-black" />
             </div>
             <div>
-              <h1 className="text-sm font-black uppercase tracking-widest italic">BIBLIOTECA <span className="text-yellow-400">INTELIGENTE</span></h1>
-              <p className="text-[10px] font-bold text-gray-500">GEMINI 1.5 FLASH ACTIVE</p>
+              <h1 className="text-xl font-black uppercase tracking-tighter italic">BIBLIOTECA <span className="text-yellow-400">INTELIGENTE</span></h1>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <p className="text-[10px] font-black text-gray-500 tracking-widest">GEMINI 1.5 FLASH ACTIVE</p>
+              </div>
             </div>
           </div>
           <button 
