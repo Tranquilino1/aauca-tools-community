@@ -63,7 +63,7 @@ export default function Page() {
                 <input 
                   type="email" 
                   value={email}
-                  onChange={(e) => setEmail(email)}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-yellow-400 outline-none transition-all font-medium"
                   placeholder="estudiante@aauca.com"
                 />
@@ -77,7 +77,7 @@ export default function Page() {
                 <input 
                   type="password" 
                   value={password}
-                  onChange={(e) => setPassword(password)}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-yellow-400 outline-none transition-all font-medium"
                   placeholder="••••••••"
                 />
