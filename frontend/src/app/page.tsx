@@ -20,7 +20,8 @@ import {
   X,
   Copy,
   MessageCircle,
-  Download
+  Download,
+  Globe
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
