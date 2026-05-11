@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AAUCAToolsCommunity | Inteligencia Artificial para Estudiantes",
-  description: "Plataforma integral de IA para estudiantes de la AAUCA. Convierte archivos, transcribe clases y chatea con tus libros.",
+  title: "AAUCAToolsCommunity | IA por Tranquilino Mba Ngogo",
+  description: "Plataforma de IA desarrollada por Tranquilino Mba Ngogo el 11/05/2026 para estudiantes de la AAUCA.",
 };
 
 export default function RootLayout({

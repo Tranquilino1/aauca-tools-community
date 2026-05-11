@@ -274,8 +274,9 @@ export default function Home() {
 
       <footer className="py-20 border-t border-black/5 text-center bg-white">
         <img src="/img/logo.png" alt="Logo Footer" className="h-16 mx-auto mb-8 opacity-40 grayscale hover:grayscale-0 transition-all cursor-pointer" />
-        <p className="text-[12px] font-black uppercase tracking-[0.4em] text-yellow-600 mb-4">AAUCAToolsCommunity</p>
-        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400">CIUDAD DE LA PAZ • OYALA • GUINEA ECUATORIAL</p>
+        <p className="text-[12px] font-black uppercase tracking-[0.4em] text-yellow-600 mb-4">AAUCAToolsCommunity © 2026</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black mb-2">Desarrollado por <span className="text-yellow-600">Tranquilino Mba Ngogo</span></p>
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400">CIUDAD DE LA PAZ • OYALA • 11/05/2026</p>
       </footer>
 
       {/* 5. Share Modal Pro */}
