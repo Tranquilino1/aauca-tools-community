@@ -54,53 +54,53 @@ export default function ConvertPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-12 relative overflow-hidden">
+    <div className="min-h-screen bg-white text-black p-6 md:p-12 relative overflow-hidden">
       {/* Background Image Accent */}
-      <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
-        <img src="/img/conversor.png" alt="" className="w-full h-full object-cover grayscale" />
-        <div className="absolute inset-0 bg-gradient-to-l from-black via-black/80 to-transparent"></div>
+      <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none">
+        <img src="/img/conversor.png" alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-l from-white via-white/80 to-transparent"></div>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto relative z-10">
         <div className="mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">Motor de Conversión v2.0</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Motor de Conversión v2.0</span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase">CONVERSOR <span className="text-blue-500">TOTAL</span></h1>
-          <p className="text-gray-400 font-bold uppercase tracking-widest text-[11px] max-w-xl">Transforma tus documentos académicos con precisión quirúrgica y fidelidad total.</p>
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase text-black">CONVERSOR <span className="text-blue-600">TOTAL</span></h1>
+          <p className="text-gray-500 font-bold uppercase tracking-widest text-[11px] max-w-xl">Transforma tus documentos académicos con precisión quirúrgica y fidelidad total.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Lado Izquierdo: Carga de Archivos */}
           <div className="space-y-8">
             <div 
-              className={`border-2 border-dashed rounded-[3rem] p-12 text-center transition-all ${file ? 'border-blue-500 bg-blue-500/5' : 'border-white/10 hover:border-blue-500/50'}`}
+              className={`border-2 border-dashed rounded-[3rem] p-12 text-center transition-all ${file ? 'border-blue-500 bg-blue-500/5' : 'border-black/10 hover:border-blue-500/50'}`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); setFile(e.dataTransfer.files[0]); }}
             >
               <input type="file" id="pdf-upload" hidden onChange={(e) => setFile(e.target.files?.[0] || null)} accept=".pdf" />
               <label htmlFor="pdf-upload" className="cursor-pointer block">
-                <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-white/5">
-                  <Upload className={`w-10 h-10 ${file ? 'text-blue-500' : 'text-gray-500'}`} />
+                <div className="w-20 h-20 bg-black/5 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-black/5">
+                  <Upload className={`w-10 h-10 ${file ? 'text-blue-500' : 'text-gray-400'}`} />
                 </div>
-                <h3 className="text-2xl font-black mb-2 italic uppercase">{file ? file.name : "Suelta tu PDF"}</h3>
-                <p className="text-sm text-gray-500 font-bold uppercase tracking-widest text-[10px]">o haz clic para explorar</p>
+                <h3 className="text-2xl font-black mb-2 italic uppercase text-black">{file ? file.name : "Suelta tu PDF"}</h3>
+                <p className="text-sm text-gray-400 font-bold uppercase tracking-widest text-[10px]">o haz clic para explorar</p>
               </label>
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.3em] ml-4">Selecciona el formato de salida</h4>
+              <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] ml-4">Selecciona el formato de salida</h4>
               <div className="grid grid-cols-1 gap-3">
                 {FORMATS.map((f) => (
                   <button 
                     key={f.id}
                     onClick={() => setTargetFormat(f.id)}
-                    className={`flex items-center gap-4 p-6 rounded-3xl border transition-all ${targetFormat === f.id ? 'border-blue-500 bg-blue-500/10' : 'border-white/5 bg-white/5 hover:bg-white/10'}`}
+                    className={`flex items-center gap-4 p-6 rounded-3xl border transition-all ${targetFormat === f.id ? 'border-blue-500 bg-blue-500/10' : 'border-black/5 bg-gray-50 hover:bg-gray-100'}`}
                   >
-                    <div className={`p-4 rounded-2xl ${f.bg} border border-white/5`}><f.icon className={`w-6 h-6 ${f.color}`} /></div>
-                    <span className="font-black uppercase tracking-tight italic text-lg">{f.label}</span>
-                    {targetFormat === f.id && <div className="ml-auto w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"><CheckCircle2 className="w-4 h-4 text-black" /></div>}
+                    <div className={`p-4 rounded-2xl ${f.bg} border border-black/5`}><f.icon className={`w-6 h-6 ${f.color}`} /></div>
+                    <span className="font-black uppercase tracking-tight italic text-lg text-black/80">{f.label}</span>
+                    {targetFormat === f.id && <div className="ml-auto w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"><CheckCircle2 className="w-4 h-4 text-white" /></div>}
                   </button>
                 ))}
               </div>

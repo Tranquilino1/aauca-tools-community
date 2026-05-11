@@ -44,45 +44,45 @@ export default function TranscribePage() {
     alert("Texto copiado al portapapeles");
   };
 
-  return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-12 relative overflow-hidden">
+  return (    <div className="min-h-screen bg-white text-black p-6 md:p-12 relative overflow-hidden">
       {/* Background Decor */}
-      <div className="absolute top-0 right-0 w-full h-full opacity-5 pointer-events-none">
+      <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
         <img src="/img/trancr.png" alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/80 to-white"></div>
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-20">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 mb-8">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-400">Powered by Whisper-v3 Large</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Powered by Whisper-v3 Large</span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase">AUDIO <span className="text-green-500">NOTAS</span></h1>
-          <p className="text-gray-400 font-bold uppercase tracking-[0.2em] text-[11px] max-w-2xl">Transcripción instantánea de alta fidelidad para clases, conferencias y seminarios académicos.</p>
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase text-black">AUDIO <span className="text-green-600">NOTAS</span></h1>
+          <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[11px] max-w-2xl">Transcripción instantánea de alta fidelidad para clases, conferencias y seminarios académicos.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Panel de Carga */}
           <div className="lg:col-span-1 space-y-8">
             <div 
-              className={`border-2 border-dashed rounded-[3rem] p-10 text-center transition-all ${file ? 'border-green-500 bg-green-500/5' : 'border-white/10 hover:border-green-500/50'}`}
+              className={`border-2 border-dashed rounded-[3rem] p-10 text-center transition-all ${file ? 'border-green-500 bg-green-500/5' : 'border-black/10 hover:border-green-500/50'}`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); setFile(e.dataTransfer.files[0]); }}
             >
               <input type="file" id="audio-upload" hidden onChange={(e) => setFile(e.target.files?.[0] || null)} accept="audio/*" />
               <label htmlFor="audio-upload" className="cursor-pointer block">
-                <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-white/5">
-                  <Mic className={`w-10 h-10 ${file ? 'text-green-500' : 'text-gray-500'}`} />
+                <div className="w-20 h-20 bg-black/5 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-black/5">
+                  <Mic className={`w-10 h-10 ${file ? 'text-green-500' : 'text-gray-400'}`} />
                 </div>
-                <h3 className="text-xl font-black mb-1 uppercase italic tracking-tighter">{file ? file.name : "Subir grabación"}</h3>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">MP3, WAV, M4A</p>
+                <h3 className="text-xl font-black mb-1 uppercase italic tracking-tighter text-black">{file ? file.name : "Subir grabación"}</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">MP3, WAV, M4A</p>
               </label>
             </div>
 
             <button 
               onClick={handleTranscribe}
               disabled={!file || status === 'processing'}
-              className="w-full py-6 rounded-2xl bg-green-500 text-black font-black text-xl disabled:opacity-30 transition-all flex items-center justify-center gap-4 shadow-xl shadow-green-500/10 hover:bg-green-400"
+              className="w-full py-6 rounded-2xl bg-green-600 text-white font-black text-xl disabled:opacity-30 transition-all flex items-center justify-center gap-4 shadow-xl shadow-green-500/20 hover:bg-green-500"
             >
               {status === 'processing' ? <Loader2 className="animate-spin w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
               {status === 'processing' ? "PROCESANDO..." : "TRANSCRIBIR AHORA"}

@@ -21,24 +21,58 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
+  const [currentFileId, setCurrentFileId] = useState<string | null>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const response = await fetch(`${backendUrl}/upload-pdf`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        setCurrentFileId(data.file_id);
+        setCurrentFile(file.name);
+        alert("Documento procesado con éxito. Ahora puedes hacer preguntas.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error al subir el documento.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input) return;
+    if (!input.trim() || loading) return;
 
-    const newMessages = [...messages, { role: 'user' as const, content: input }];
+    const userMessage = input;
+    const newMessages = [...messages, { role: 'user' as const, content: userMessage }];
     setMessages(newMessages);
     setInput('');
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/summarize`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const response = await fetch(`${backendUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ text: input })
+        body: new URLSearchParams({ 
+          question: userMessage,
+          file_id: currentFileId || ''
+        })
       });
       const data = await response.json();
-      setMessages([...newMessages, { role: 'ai' as const, content: data.summary }]);
+      setMessages([...newMessages, { role: 'ai' as const, content: data.response }]);
     } catch (error) {
       console.error("Chat error:", error);
       alert("Error al conectar con la IA");
@@ -60,44 +94,56 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-black text-white overflow-hidden relative">
+    <div className="flex h-screen bg-white text-black overflow-hidden relative">
       {/* Background Campus Overlay */}
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <img src="/img/campus.png" alt="" className="w-full h-full object-cover grayscale" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+        <img src="/img/campus.png" alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
       </div>
 
       {/* Sidebar - Gestión de Documentos */}
-      <aside className="w-80 border-r border-white/5 bg-black/40 backdrop-blur-3xl flex flex-col p-8 relative z-10 hidden md:flex">
+      <aside className="w-80 border-r border-black/5 bg-white/40 backdrop-blur-3xl flex flex-col p-8 relative z-10 hidden md:flex">
         <div className="mb-12">
           <Link href="/">
             <img src="/img/logo.png" alt="AAUCA" className="h-12 mb-8 hover:scale-105 transition-transform" />
           </Link>
-          <div className="h-[1px] w-full bg-gradient-to-r from-yellow-400/50 to-transparent mb-8"></div>
-          <h2 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.4em] mb-6">Biblioteca Personal</h2>
+          <div className="h-[1px] w-full bg-gradient-to-r from-yellow-500/50 to-transparent mb-8"></div>
+          <h2 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em] mb-6">Biblioteca Personal</h2>
           
-          <button className="w-full py-5 rounded-[2rem] bg-yellow-400 text-black flex items-center justify-center gap-3 text-sm font-black uppercase tracking-tighter hover:bg-yellow-300 transition-all shadow-xl shadow-yellow-500/10">
-            <Upload className="w-4 h-4" /> Subir PDF
+          <button 
+            onClick={() => document.getElementById('chat-pdf-upload')?.click()}
+            className="w-full py-5 rounded-[2rem] bg-yellow-400 text-black flex items-center justify-center gap-3 text-sm font-black uppercase tracking-tighter hover:bg-yellow-300 transition-all shadow-xl shadow-yellow-500/10"
+          >
+            <Upload className="w-4 h-4" /> {loading ? "Procesando..." : "Subir PDF"}
           </button>
+          <input 
+            type="file" 
+            id="chat-pdf-upload" 
+            hidden 
+            accept=".pdf" 
+            onChange={handleFileUpload} 
+          />
         </div>
         
         <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar">
-          <div className="p-5 rounded-[2rem] bg-white/5 border border-white/10 flex items-center gap-4 group cursor-pointer hover:bg-white/10 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center border border-yellow-400/20">
-              <FileText className="w-5 h-5 text-yellow-400" />
+          {currentFile && (
+            <div className="p-5 rounded-[2rem] bg-black/5 border border-black/5 flex items-center gap-4 group cursor-pointer hover:bg-black/10 transition-all animate-pulse">
+              <div className="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center border border-yellow-400/20">
+                <FileText className="w-5 h-5 text-yellow-600" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-xs font-black truncate uppercase tracking-tighter text-black/80">{currentFile}</p>
+                <p className="text-[8px] text-yellow-600 uppercase font-black tracking-widest mt-1">Sincronizado</p>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-black truncate uppercase tracking-tighter">Calculo_Diferencial.pdf</p>
-              <p className="text-[8px] text-yellow-400/60 uppercase font-black tracking-widest mt-1">Sincronizado</p>
-            </div>
-          </div>
+          )}
         </div>
 
-        <div className="mt-auto pt-8 border-t border-white/5">
-          <div className="p-4 rounded-2xl bg-white/5 flex items-center gap-3">
+        <div className="mt-auto pt-8 border-t border-black/5">
+          <div className="p-4 rounded-2xl bg-black/5 flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-yellow-600 flex items-center justify-center font-black text-black text-xs">U</div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-tighter">Usuario Premium</p>
+              <p className="text-[10px] font-black uppercase tracking-tighter text-black">Usuario Premium</p>
               <p className="text-[8px] text-gray-500 font-bold">AAUCA STUDENT</p>
             </div>
           </div>
@@ -105,17 +151,17 @@ export default function ChatPage() {
       </aside>
 
       {/* Área Principal de Chat */}
-      <main className="flex-1 flex flex-col relative z-10 bg-black/20 backdrop-blur-sm">
-        <header className="p-8 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-2xl">
+      <main className="flex-1 flex flex-col relative z-10 bg-white/20 backdrop-blur-sm">
+        <header className="p-8 border-b border-black/5 flex items-center justify-between bg-white/40 backdrop-blur-2xl">
           <div className="flex items-center gap-6">
-            <div className="w-14 h-14 rounded-2xl bg-yellow-400 flex items-center justify-center shadow-2xl shadow-yellow-500/40 border-4 border-black">
+            <div className="w-14 h-14 rounded-2xl bg-yellow-400 flex items-center justify-center shadow-2xl shadow-yellow-500/20 border-4 border-white">
               <BrainCircuit className="w-8 h-8 text-black" />
             </div>
             <div>
-              <h1 className="text-xl font-black uppercase tracking-tighter italic">BIBLIOTECA <span className="text-yellow-400">INTELIGENTE</span></h1>
+              <h1 className="text-xl font-black uppercase tracking-tighter italic text-black">BIBLIOTECA <span className="text-yellow-600">INTELIGENTE</span></h1>
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <p className="text-[10px] font-black text-gray-500 tracking-widest">GEMINI 1.5 FLASH ACTIVE</p>
+                <p className="text-[10px] font-black text-gray-400 tracking-widest">GEMINI 1.5 FLASH ACTIVE</p>
               </div>
             </div>
           </div>

@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #000000;
+  --color-background: #ffffff;
   --color-primary: #facc15;
-  --color-accent: #ffffff;
+  --color-accent: #000000;
 }
 
 body {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #000000;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
@@ -24,21 +24,21 @@ body {
 
 /* Header Clean Original */
 .glass-aauca {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(250, 204, 21, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .glass-card-aauca {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   transition: all 0.4s ease;
 }
 
 .glass-card-aauca:hover {
   border-color: #facc15;
   background: rgba(250, 204, 21, 0.05);
-  box-shadow: 0 0 30px rgba(250, 204, 21, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
 }
 
 .text-shimmer-yellow {

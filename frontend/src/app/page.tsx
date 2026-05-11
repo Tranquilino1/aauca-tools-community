@@ -56,14 +56,14 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-yellow-500/30 relative">
-      <div className="noise-overlay" />
+    <div className="min-h-screen bg-white text-black selection:bg-yellow-500/30 relative">
+      <div className="noise-overlay opacity-10" />
 
       {/* Top Support Banner */}
       <div className="bg-yellow-400 text-black py-2 px-4 text-center text-[9px] md:text-[10px] font-black uppercase tracking-widest flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 relative z-[110]">
         <div className="flex items-center gap-1">
-          <Heart className="w-3 h-3 fill-current" />
-          <span>Ya somos <span className="underline">{userCount.toLocaleString()}</span> estudiantes en la plataforma</span>
+          <Heart className="w-3 h-3 fill-current text-red-600" />
+          <span>Ya somos <span className="underline font-black">{userCount.toLocaleString()}</span> estudiantes en la plataforma</span>
         </div>
         <button onClick={shareLink} className="bg-black text-white px-3 py-1 rounded-full hover:bg-gray-900 transition-all flex items-center gap-2 text-[8px] md:text-[10px]">
           <Share2 className="w-3 h-3" /> Compartir enlace
@@ -71,21 +71,21 @@ export default function Home() {
       </div>
 
       {/* Navigation */}
-      <motion.nav initial={{ y: -100 }} animate={{ y: 0 }} className="fixed top-10 w-full z-[100] glass-aauca border-b border-yellow-500/10">
+      <motion.nav initial={{ y: -100 }} animate={{ y: 0 }} className="fixed top-10 w-full z-[100] glass-aauca border-b border-black/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-1 bg-white/5 rounded-xl border border-white/10">
+            <div className="p-1 bg-black/5 rounded-xl border border-black/10">
               <img src="/img/logo.png" alt="AAUCA Logo" className="h-10 w-auto rounded-lg" />
             </div>
-            <div className="h-8 w-[1px] bg-white/10 mx-2 hidden sm:block"></div>
-            <span className="font-black text-xl tracking-tighter uppercase hidden sm:block">
-              AAUCATools<span className="text-yellow-400">Community</span>
+            <div className="h-8 w-[1px] bg-black/10 mx-2 hidden sm:block"></div>
+            <span className="font-black text-xl tracking-tighter uppercase hidden sm:block text-black">
+              AAUCATools<span className="text-yellow-500">Community</span>
             </span>
           </div>
           <div className="flex items-center gap-6">
             <div className="hidden lg:flex items-center gap-6 text-[11px] font-bold uppercase tracking-widest">
-              <a href="#herramientas" className="text-gray-400 hover:text-yellow-400 transition-colors">Herramientas</a>
-              <Link href="/login" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2">
+              <a href="#herramientas" className="text-gray-500 hover:text-yellow-600 transition-colors">Herramientas</a>
+              <Link href="/login" className="text-gray-500 hover:text-black transition-colors flex items-center gap-2">
                 <LogIn className="w-4 h-4" /> Iniciar Sesión
               </Link>
               <Link href="/register">
@@ -98,7 +98,7 @@ export default function Home() {
             {/* Mobile Menu Button */}
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 text-white hover:text-yellow-400 transition-colors"
+              className="lg:hidden p-2 text-black hover:text-yellow-600 transition-colors"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -110,10 +110,10 @@ export default function Home() {
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="lg:hidden bg-black/95 backdrop-blur-xl border-b border-yellow-500/10 p-6 flex flex-col gap-6 text-center uppercase font-black text-sm tracking-widest"
+            className="lg:hidden bg-white/95 backdrop-blur-xl border-b border-black/5 p-6 flex flex-col gap-6 text-center uppercase font-black text-sm tracking-widest"
           >
-            <a href="#herramientas" onClick={() => setIsMenuOpen(false)} className="text-gray-400">Herramientas</a>
-            <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-gray-400">Iniciar Sesión</Link>
+            <a href="#herramientas" onClick={() => setIsMenuOpen(false)} className="text-gray-500">Herramientas</a>
+            <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-gray-500">Iniciar Sesión</Link>
             <Link href="/register" onClick={() => setIsMenuOpen(false)}>
               <button className="w-full py-4 rounded-2xl bg-yellow-400 text-black">Registrarse</button>
             </Link>
@@ -124,19 +124,19 @@ export default function Home() {
       {/* 1. Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src="/img/campus.png" alt="Campus AAUCA" className="w-full h-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black"></div>
+          <img src="/img/campus.png" alt="Campus AAUCA" className="w-full h-full object-cover opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/80 to-white"></div>
         </div>
         <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }} className="relative z-10 max-w-6xl mx-auto text-center px-6">
           <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 mb-8">
-            <Sparkles className="w-4 h-4 text-yellow-400" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-200">Plataforma Académica Oficial</span>
+            <Sparkles className="w-4 h-4 text-yellow-600" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-700">Plataforma Académica Oficial</span>
           </motion.div>
-          <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl lg:text-[7rem] font-black tracking-tighter mb-8 leading-[1.1] md:leading-[0.85] text-shimmer-yellow">
+          <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl lg:text-[7rem] font-black tracking-tighter mb-8 leading-[1.1] md:leading-[0.85] text-black">
             POTENCIA TU <br className="hidden md:block" /> ÉXITO ACADÉMICO.
           </motion.h1>
-          <motion.p variants={itemVariants} className="text-lg md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
-            La navaja suiza de IA para el estudiante de la <span className="text-yellow-400 font-bold">AAUCA</span>. Convierte, transcribe y chatea con tus libros en un solo lugar.
+          <motion.p variants={itemVariants} className="text-lg md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed font-medium">
+            La navaja suiza de IA para el estudiante de la <span className="text-yellow-600 font-bold">AAUCA</span>. Convierte, transcribe y chatea con tus libros en un solo lugar.
           </motion.p>
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link href="/chat">
@@ -151,14 +151,14 @@ export default function Home() {
       {/* 2. Bento Grid Herramientas */}
       <section id="herramientas" className="max-w-7xl mx-auto px-6 py-32">
         <div className="text-center mb-20">
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic">Nuestras <span className="text-yellow-400">Herramientas</span></h2>
+          <h2 className="text-4xl font-black tracking-tighter uppercase italic text-black">Nuestras <span className="text-yellow-500">Herramientas</span></h2>
           <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-2">Tecnología de última generación al servicio del estudiante</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[300px]">
           <ToolCard 
             href="/chat"
             className="md:col-span-2 md:row-span-2"
-            icon={<Library className="w-16 h-16 md:w-24 md:h-24 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.4)]" />}
+            icon={<Library className="w-16 h-16 md:w-24 md:h-24 text-yellow-500 drop-shadow-[0_0_15px_rgba(250,204,21,0.2)]" />}
             title="Biblioteca Inteligente"
             desc="Sube tus libros y hazles preguntas. Potenciado por Gemini 1.5 Flash para un análisis profundo."
             tag="IA AVANZADA"
@@ -168,7 +168,7 @@ export default function Home() {
           <ToolCard 
             href="/convert"
             className="md:col-span-2"
-            icon={<FileSpreadsheet className="w-16 h-16 text-blue-400" />}
+            icon={<FileSpreadsheet className="w-16 h-16 text-blue-500" />}
             title="Conversor Total"
             desc="PDF a Word, Excel o PPT en segundos manteniendo el diseño."
             tag="DOCUMENTOS"
@@ -178,7 +178,7 @@ export default function Home() {
           <ToolCard 
             href="/transcribe"
             className="md:col-span-1"
-            icon={<AudioLines className="w-16 h-16 text-green-400" />}
+            icon={<AudioLines className="w-16 h-16 text-green-600" />}
             title="Audio-Notas"
             desc="Transcripción de clases grabadas."
             tag="WHISPER V3"
@@ -188,7 +188,7 @@ export default function Home() {
           <ToolCard 
             href="/chat"
             className="md:col-span-1"
-            icon={<BrainCircuit className="w-16 h-16 text-yellow-400" />}
+            icon={<BrainCircuit className="w-16 h-16 text-yellow-500" />}
             title="Sintetizador"
             desc="Resúmenes de libros de 500+ páginas."
             tag="GEMINI FLASH"
@@ -198,18 +198,18 @@ export default function Home() {
       </section>
 
       {/* 3. Filosofía */}
-      <section id="nosotros" className="py-32 bg-white/5 border-y border-white/5 px-6">
+      <section id="nosotros" className="py-32 bg-gray-50 border-y border-black/5 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className="relative rounded-[3rem] overflow-hidden border border-yellow-500/20 group">
+          <div className="relative rounded-[3rem] overflow-hidden border border-yellow-500/20 group shadow-2xl">
             <img src="/img/puerta.png" alt="Entrada AAUCA" className="w-full h-auto group-hover:scale-105 transition-transform duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent"></div>
           </div>
           <div>
-            <h2 className="text-5xl font-black tracking-tighter mb-12 text-shimmer-yellow">FILOSOFÍA <br /> COMUNITARIA.</h2>
+            <h2 className="text-5xl font-black tracking-tighter mb-12 text-black italic">FILOSOFÍA <br /> <span className="text-yellow-500">COMUNITARIA.</span></h2>
             <div className="space-y-10">
-              <PhilItem icon={<Users2 className="w-6 h-6 text-yellow-400" />} title="Hecho por la Comunidad" desc="Un proyecto nacido en el campus de la Ciudad de la Paz para resolver problemas reales de nuestros estudiantes." />
-              <PhilItem icon={<ShieldCheck className="w-6 h-6 text-yellow-400" />} title="Privacidad Local" desc="Tus documentos se procesan de forma segura. No almacenamos tus datos personales ni tus archivos de forma permanente." />
-              <PhilItem icon={<Building2 className="w-6 h-6 text-yellow-400" />} title="Excelencia AAUCA" desc="Tecnología de punta aplicada al rigor académico que nos caracteriza." />
+              <PhilItem icon={<Users2 className="w-6 h-6 text-yellow-600" />} title="Hecho por la Comunidad" desc="Un proyecto nacido en el campus de la Ciudad de la Paz para resolver problemas reales de nuestros estudiantes." />
+              <PhilItem icon={<ShieldCheck className="w-6 h-6 text-yellow-600" />} title="Privacidad Local" desc="Tus documentos se procesan de forma segura. No almacenamos tus datos personales ni tus archivos de forma permanente." />
+              <PhilItem icon={<Building2 className="w-6 h-6 text-yellow-600" />} title="Excelencia AAUCA" desc="Tecnología de punta aplicada al rigor académico que nos caracteriza." />
             </div>
           </div>
         </div>
@@ -217,13 +217,13 @@ export default function Home() {
 
       {/* 4. Open Source */}
       <section className="max-w-7xl mx-auto px-6 py-40 text-center">
-        <div className="p-20 rounded-[4rem] bg-yellow-400 text-black relative overflow-hidden group">
-          <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
-            <img src="/img/github.png" alt="" className="w-full h-full object-cover grayscale" />
+        <div className="p-20 rounded-[4rem] bg-yellow-400 text-black relative overflow-hidden group shadow-2xl">
+          <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none">
+            <img src="/img/github.png" alt="" className="w-full h-full object-cover" />
           </div>
           <div className="relative z-10">
             <h2 className="text-6xl font-black tracking-tighter mb-6 italic">¿ERES PROGRAMADOR?</h2>
-            <p className="text-black/80 text-xl mb-12 max-w-2xl mx-auto font-bold uppercase tracking-tight">Contribuye al desarrollo de la tecnología académica de la Ciudad de la Paz.</p>
+            <p className="text-black/80 text-xl mb-12 max-w-2xl mx-auto font-black uppercase tracking-tight">Contribuye al desarrollo de la tecnología académica de la Ciudad de la Paz.</p>
             <a 
               href="https://github.com/Tranquilino1/aauca-tools-community"
               target="_blank"
@@ -235,10 +235,10 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="py-20 border-t border-white/5 text-center">
-        <img src="/img/logo.png" alt="Logo Footer" className="h-16 mx-auto mb-8 opacity-50 grayscale hover:grayscale-0 transition-all" />
-        <p className="text-[12px] font-black uppercase tracking-[0.4em] text-yellow-400 mb-4">AAUCAToolsCommunity</p>
-        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500">CIUDAD DE LA PAZ • OYALA • GUINEA ECUATORIAL</p>
+      <footer className="py-20 border-t border-black/5 text-center bg-white">
+        <img src="/img/logo.png" alt="Logo Footer" className="h-16 mx-auto mb-8 opacity-40 grayscale hover:grayscale-0 transition-all cursor-pointer" />
+        <p className="text-[12px] font-black uppercase tracking-[0.4em] text-yellow-600 mb-4">AAUCAToolsCommunity</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400">CIUDAD DE LA PAZ • OYALA • GUINEA ECUATORIAL</p>
       </footer>
     </div>
   );
@@ -246,23 +246,23 @@ export default function Home() {
 
 function ToolCard({ icon, title, desc, className, href, tag, image, color }: { icon: React.ReactNode, title: string, desc: string, className?: string, href: string, tag: string, image?: string, color?: string }) {
   return (
-    <motion.div whileHover={{ y: -5 }} className={`group relative p-10 rounded-[3rem] glass-card-aauca flex flex-col justify-between overflow-hidden border transition-all ${color || 'border-white/5'} ${className}`}>
+    <motion.div whileHover={{ y: -5 }} className={`group relative p-10 rounded-[3rem] glass-card-aauca flex flex-col justify-between overflow-hidden border transition-all ${color || 'border-black/5'} ${className}`}>
       <Link href={href} className="absolute inset-0 z-20" />
       
       {image && (
-        <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <img src={image} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+        <div className="absolute inset-0 z-0 opacity-20 group-hover:opacity-40 transition-opacity">
+          <img src={image} alt="" className="w-full h-full object-cover transition-all duration-700" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent"></div>
         </div>
       )}
 
       <div className="relative z-10 flex justify-between items-start">
-        <div className="p-4 rounded-2xl bg-white/5 group-hover:bg-white/10 transition-colors">{icon}</div>
-        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 bg-white/5 px-3 py-1 rounded-full">{tag}</span>
+        <div className="p-4 rounded-2xl bg-black/5 group-hover:bg-black/10 transition-colors border border-black/5">{icon}</div>
+        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 bg-white/50 backdrop-blur-md px-3 py-1 rounded-full border border-black/5">{tag}</span>
       </div>
       <div className="relative z-10">
-        <h3 className="text-2xl font-black mb-3 group-hover:text-yellow-400 transition-colors uppercase italic tracking-tighter">{title}</h3>
-        <p className="text-gray-500 text-sm leading-relaxed font-medium group-hover:text-gray-300 transition-colors">{desc}</p>
+        <h3 className="text-2xl font-black mb-3 group-hover:text-black transition-colors uppercase italic tracking-tighter text-black/80">{title}</h3>
+        <p className="text-gray-500 text-sm leading-relaxed font-semibold group-hover:text-gray-700 transition-colors">{desc}</p>
       </div>
     </motion.div>
   );
