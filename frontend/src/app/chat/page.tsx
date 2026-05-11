@@ -13,6 +13,7 @@ import {
   Loader2,
   ChevronRight
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<{ role: 'user' | 'ai', content: string }[]>([]);
