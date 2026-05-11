@@ -1,0 +1,26 @@
+# Dependencias
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Variables de entorno (MUY IMPORTANTE)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Otros
+.DS_Store
+*.log
+.docker-compose.yml.swp

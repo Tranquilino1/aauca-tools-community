@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #000000;
+  --color-primary: #facc15;
+  --color-accent: #ffffff;
+}
+
+body {
+  background-color: #000000;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Header Clean Original */
+.glass-aauca {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(250, 204, 21, 0.1);
+}
+
+.glass-card-aauca {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s ease;
+}
+
+.glass-card-aauca:hover {
+  border-color: #facc15;
+  background: rgba(250, 204, 21, 0.05);
+  box-shadow: 0 0 30px rgba(250, 204, 21, 0.1);
+}
+
+.text-shimmer-yellow {
+  background: linear-gradient(
+    to right,
+    #888 20%,
+    #facc15 40%,
+    #facc15 60%,
+    #888 80%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
