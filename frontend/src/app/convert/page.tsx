@@ -56,21 +56,15 @@ export default function ConvertPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black p-6 md:p-12 relative overflow-hidden">
-      {/* Background Image Accent */}
-      <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none">
-        <img src="/img/conversor.png" alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-l from-white via-white/80 to-transparent"></div>
-      </div>
-
+    <div className="min-h-screen bg-white text-black p-4 md:p-12 relative overflow-hidden font-sans">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto relative z-10">
-        <div className="mb-16">
+        <div className="mb-10 md:mb-16 pt-4 md:pt-0">
           <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Motor de Conversión v2.0</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">IA de Oficina v2.0</span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase text-black">CONVERSOR <span className="text-blue-600">TOTAL</span></h1>
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-[11px] max-w-xl">Transforma tus documentos académicos con precisión quirúrgica y fidelidad total.</p>
+          <h1 className="text-4xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase text-black leading-none">CONVERSOR <br className="md:hidden" /><span className="text-blue-600">TOTAL</span></h1>
+          <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] md:text-[11px] max-w-xl">Transformación precisa de PDF a Word, Excel y PowerPoint.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

@@ -130,12 +130,11 @@ export default function Home() {
       </motion.nav>
 
       {/* 1. Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-white px-4">
         <div className="absolute inset-0 z-0">
-          <img src="/img/campus.png" alt="Campus AAUCA" className="w-full h-full object-cover opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/80 to-white"></div>
+          <div className="absolute inset-0 bg-white"></div>
         </div>
-        <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }} className="relative z-10 max-w-6xl mx-auto text-center px-6">
+        <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }} className="relative z-10 max-w-6xl mx-auto text-center px-4">
           <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 mb-8">
             <Sparkles className="w-4 h-4 text-yellow-600" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-700">Plataforma Académica Oficial</span>

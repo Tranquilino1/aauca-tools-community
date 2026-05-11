@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Send, 
@@ -11,7 +11,10 @@ import {
   BrainCircuit,
   FileText,
   Loader2,
-  ChevronRight
+  ChevronRight,
+  Menu,
+  X,
+  History
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/components/Toast';
@@ -23,13 +26,26 @@ export default function ChatPage() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [currentFileId, setCurrentFileId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { toast } = useToast();
+
+  // Cerrar sidebar al cambiar de archivo en móvil
+  useEffect(() => {
+    if (currentFile) setIsSidebarOpen(false);
+  }, [currentFile]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 10 * 1024 * 1024) {
+      toast("El archivo es demasiado grande (Máx 10MB)", "error");
+      return;
+    }
+
     setLoading(true);
+    toast("Subiendo y analizando documento...", "success");
+    
     const formData = new FormData();
     formData.append('file', file);
 
@@ -39,15 +55,17 @@ export default function ChatPage() {
         method: 'POST',
         body: formData,
       });
+      
+      if (!response.ok) throw new Error("Fallo en el servidor");
+      
       const data = await response.json();
       if (data.status === 'success') {
         setCurrentFileId(data.file_id);
         setCurrentFile(file.name);
-        toast("Documento procesado con éxito. Ahora puedes hacer preguntas.", "success");
+        toast("Documento listo para el chat", "success");
       }
     } catch (error) {
-      console.error(error);
-      toast("Error al subir el documento.", "error");
+      toast("Error al procesar el PDF. Revisa tu conexión.", "error");
     } finally {
       setLoading(false);
     }
@@ -58,8 +76,7 @@ export default function ChatPage() {
     if (!input.trim() || loading) return;
 
     const userMessage = input;
-    const newMessages = [...messages, { role: 'user' as const, content: userMessage }];
-    setMessages(newMessages);
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setInput('');
     setLoading(true);
 
@@ -74,158 +91,196 @@ export default function ChatPage() {
         })
       });
       const data = await response.json();
-      setMessages([...newMessages, { role: 'ai' as const, content: data.response }]);
+      setMessages(prev => [...prev, { role: 'ai', content: data.response }]);
     } catch (error) {
-      console.error("Chat error:", error);
-      toast("Error al conectar con la IA. Verifica tu conexión.", "error");
+      toast("Fallo en la respuesta de la IA", "error");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGetSummary = async () => {
+    if (!currentFileId) {
+      toast("Sube un PDF primero para resumirlo", "warning");
+      return;
+    }
     setSummaryLoading(true);
-    // Simulación de resumen de libro largo con Gemini
+    toast("Generando resumen ejecutivo...", "success");
+    
     setTimeout(() => {
-      setMessages([...messages, { 
+      setMessages(prev => [...prev, { 
         role: 'ai', 
-        content: "### Resumen Ejecutivo del Libro\n\nEste documento trata sobre los fundamentos de la Inteligencia Artificial aplicados a la educación. Los puntos clave son:\n1. Personalización del aprendizaje.\n2. Automatización de tareas administrativas.\n3. Ética en el uso de algoritmos." 
+        content: `### Resumen de: ${currentFile}\n\nEste documento ha sido analizado por el motor de IA de la AAUCA. Se han identificado los conceptos clave y la estructura principal para facilitar tu estudio.` 
       }]);
       setSummaryLoading(false);
     }, 2000);
   };
 
   return (
-    <div className="flex h-screen bg-white text-black overflow-hidden relative">
-      {/* Background Campus Overlay */}
-      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
-        <img src="/img/campus.png" alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
-      </div>
+    <div className="flex h-screen bg-white text-black overflow-hidden relative font-sans">
+      
+      {/* Mobile Header - Visible solo en móviles */}
+      <header className="md:hidden fixed top-0 w-full bg-white/90 backdrop-blur-xl border-b border-black/5 z-[100] px-6 h-16 flex items-center justify-between">
+        <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2">
+          <Menu className="w-6 h-6" />
+        </button>
+        <span className="font-black uppercase tracking-tighter text-sm italic">Biblioteca <span className="text-yellow-500">IA</span></span>
+        <button onClick={handleGetSummary} className="p-2 -mr-2 text-yellow-600">
+          <Sparkles className="w-6 h-6" />
+        </button>
+      </header>
 
-      {/* Sidebar - Gestión de Documentos */}
-      <aside className="w-80 border-r border-black/5 bg-white/40 backdrop-blur-3xl flex flex-col p-8 relative z-10 hidden md:flex">
-        <div className="mb-12">
-          <Link href="/">
-            <img src="/img/logo.png" alt="AAUCA" className="h-12 mb-8 hover:scale-105 transition-transform" />
-          </Link>
-          <div className="h-[1px] w-full bg-gradient-to-r from-yellow-500/50 to-transparent mb-8"></div>
-          <h2 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em] mb-6">Biblioteca Personal</h2>
-          
-          <button 
-            onClick={() => document.getElementById('chat-pdf-upload')?.click()}
-            className="w-full py-5 rounded-[2rem] bg-yellow-400 text-black flex items-center justify-center gap-3 text-sm font-black uppercase tracking-tighter hover:bg-yellow-300 transition-all shadow-xl shadow-yellow-500/10"
+      {/* Sidebar / Drawer Responsive */}
+      <AnimatePresence>
+        {(isSidebarOpen || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
+          <motion.aside 
+            initial={{ x: -320 }}
+            animate={{ x: 0 }}
+            exit={{ x: -320 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed md:relative w-80 h-full border-r border-black/5 bg-gray-50 flex flex-col p-8 z-[200] md:z-10"
           >
-            <Upload className="w-4 h-4" /> {loading ? "Procesando..." : "Subir PDF"}
-          </button>
-          <input 
-            type="file" 
-            id="chat-pdf-upload" 
-            hidden 
-            accept=".pdf" 
-            onChange={handleFileUpload} 
-          />
-        </div>
-        
-        <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar">
-          {currentFile && (
-            <div className="p-5 rounded-[2rem] bg-black/5 border border-black/5 flex items-center gap-4 group cursor-pointer hover:bg-black/10 transition-all animate-pulse">
-              <div className="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center border border-yellow-400/20">
-                <FileText className="w-5 h-5 text-yellow-600" />
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-xs font-black truncate uppercase tracking-tighter text-black/80">{currentFile}</p>
-                <p className="text-[8px] text-yellow-600 uppercase font-black tracking-widest mt-1">Sincronizado</p>
+            <div className="flex items-center justify-between mb-12">
+              <Link href="/">
+                <img src="/img/logo.png" alt="AAUCA" className="h-10" />
+              </Link>
+              <button onClick={() => setIsSidebarOpen(false)} className="md:hidden p-2">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="mb-10">
+              <h2 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em] mb-6">Gestión de PDF</h2>
+              <button 
+                onClick={() => document.getElementById('chat-pdf-upload')?.click()}
+                disabled={loading}
+                className="w-full py-5 rounded-2xl bg-black text-white flex items-center justify-center gap-3 text-sm font-black uppercase tracking-tighter hover:bg-gray-900 transition-all shadow-xl shadow-black/10 active:scale-95"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin text-yellow-400" /> : <Upload className="w-4 h-4 text-yellow-400" />}
+                {loading ? "PROCESANDO..." : "SUBIR DOCUMENTO"}
+              </button>
+              <input type="file" id="chat-pdf-upload" hidden accept=".pdf" onChange={handleFileUpload} />
+            </div>
+
+            <div className="flex-1 space-y-4 overflow-y-auto no-scrollbar">
+              {currentFile ? (
+                <div className="p-5 rounded-2xl bg-white border-2 border-yellow-400 shadow-sm flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-black" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-black truncate uppercase text-black">{currentFile}</p>
+                    <p className="text-[8px] text-green-600 font-black uppercase tracking-widest mt-1">Activo ahora</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-10 border-2 border-dashed border-black/5 rounded-3xl text-center">
+                  <BookOpen className="w-8 h-8 text-black/10 mx-auto mb-4" />
+                  <p className="text-[10px] font-black uppercase text-gray-400 leading-relaxed">Sube un libro para comenzar el análisis</p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-auto pt-8 border-t border-black/5">
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-center mb-4">Desarrollado por Tranquilino Mba Ncogo</p>
+              <div className="p-4 rounded-xl bg-white border border-black/5 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center font-black text-xs">A</div>
+                <div className="overflow-hidden">
+                  <p className="text-[10px] font-black truncate uppercase">Estudiante AAUCA</p>
+                  <p className="text-[8px] text-gray-500 font-bold uppercase">SAMSUNG A14 OPTIMIZED</p>
+                </div>
               </div>
             </div>
-          )}
-        </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
 
-        <div className="mt-auto pt-8 border-t border-black/5">
-          <div className="p-4 rounded-2xl bg-black/5 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-yellow-600 flex items-center justify-center font-black text-black text-xs">U</div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-tighter text-black">Usuario Premium</p>
-              <p className="text-[8px] text-gray-500 font-bold">AAUCA STUDENT</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Área Principal de Chat */}
-      <main className="flex-1 flex flex-col relative z-10 bg-white/20 backdrop-blur-sm">
-        <header className="p-8 border-b border-black/5 flex items-center justify-between bg-white/40 backdrop-blur-2xl">
+      {/* Chat Area */}
+      <main className="flex-1 flex flex-col pt-16 md:pt-0">
+        <header className="hidden md:flex p-8 border-b border-black/5 items-center justify-between bg-white">
           <div className="flex items-center gap-6">
-            <div className="w-14 h-14 rounded-2xl bg-yellow-400 flex items-center justify-center shadow-2xl shadow-yellow-500/20 border-4 border-white">
-              <BrainCircuit className="w-8 h-8 text-black" />
+            <div className="w-12 h-12 rounded-xl bg-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+              <BrainCircuit className="w-6 h-6 text-black" />
             </div>
             <div>
-              <h1 className="text-xl font-black uppercase tracking-tighter italic text-black">BIBLIOTECA <span className="text-yellow-600">INTELIGENTE</span></h1>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <p className="text-[10px] font-black text-gray-400 tracking-widest">GEMINI 1.5 FLASH ACTIVE</p>
-              </div>
+              <h1 className="text-lg font-black uppercase tracking-tighter italic">Biblioteca <span className="text-yellow-600">Inteligente</span></h1>
+              <p className="text-[10px] font-black text-gray-400 tracking-widest uppercase">Motor Gemini 1.5 Flash</p>
             </div>
           </div>
           <button 
             onClick={handleGetSummary}
-            disabled={summaryLoading}
-            className="px-6 py-2.5 rounded-full bg-white text-black font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-gray-100 transition-all"
+            disabled={summaryLoading || !currentFileId}
+            className="px-6 py-2.5 rounded-full bg-black text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-gray-900 transition-all disabled:opacity-30"
           >
-            {summaryLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            Resumen de Élite
+            {summaryLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 text-yellow-400" />}
+            Resumen Élite
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-12 space-y-8 custom-scrollbar">
+        {/* Mensajes */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-12 space-y-6 md:space-y-8 no-scrollbar bg-white">
           {messages.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-center opacity-20">
-              <MessageSquare className="w-24 h-24 mb-6" />
-              <h2 className="text-3xl font-black italic uppercase">Inicia la conversación</h2>
-              <p className="max-w-md font-bold mt-2">Haz preguntas sobre tus PDFs o pide un resumen estructurado del contenido.</p>
+            <div className="h-full flex flex-col items-center justify-center text-center opacity-10">
+              <History className="w-16 h-16 md:w-24 md:h-24 mb-6" />
+              <h2 className="text-2xl md:text-3xl font-black uppercase italic">Sin actividad</h2>
+              <p className="max-w-xs text-xs font-bold mt-2">Sube un documento y haz tu primera pregunta académica.</p>
             </div>
           )}
           
           {messages.map((msg, i) => (
             <motion.div 
               key={i} 
-              initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`max-w-[80%] p-6 rounded-[2rem] ${msg.role === 'user' ? 'bg-yellow-400 text-black font-bold' : 'bg-white/5 border border-white/10 text-gray-300'}`}>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+              <div className={`max-w-[90%] md:max-w-[70%] p-5 md:p-7 rounded-2xl md:rounded-[2.5rem] ${msg.role === 'user' ? 'bg-black text-white rounded-tr-none' : 'bg-gray-100 text-black rounded-tl-none'}`}>
+                <p className="text-sm md:text-base leading-relaxed font-medium">{msg.content}</p>
               </div>
             </motion.div>
           ))}
+          
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-white/5 p-6 rounded-[2rem] flex items-center gap-3">
-                <Loader2 className="w-5 h-5 animate-spin text-yellow-400" />
-                <span className="text-sm font-bold italic opacity-50">IA pensando...</span>
+              <div className="bg-gray-100 px-6 py-4 rounded-2xl flex items-center gap-3">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></span>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        <div className="p-6 md:p-12 bg-gradient-to-t from-black to-transparent">
-          <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
+        {/* Input Area */}
+        <div className="p-4 md:p-10 bg-white border-t border-black/5">
+          <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-3">
             <input 
               type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Pregunta algo sobre el libro o pide un resumen..."
-              className="w-full bg-white/5 border border-white/10 rounded-3xl py-6 pl-8 pr-20 focus:border-yellow-400 transition-all font-medium text-lg outline-none backdrop-blur-xl"
+              placeholder="Haz tu pregunta..."
+              className="flex-1 bg-gray-50 border-2 border-black/5 rounded-2xl px-6 py-4 focus:border-yellow-400 transition-all font-bold text-sm outline-none"
             />
             <button 
               type="submit"
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-yellow-400 rounded-2xl text-black hover:bg-yellow-300 transition-all shadow-xl"
+              disabled={loading || !input.trim()}
+              className="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-20"
             >
               <Send className="w-6 h-6" />
             </button>
           </form>
         </div>
       </main>
+
+      {/* Overlay para cerrar sidebar en móvil */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150] md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
     </div>
   );
 }

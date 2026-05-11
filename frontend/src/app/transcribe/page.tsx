@@ -47,21 +47,15 @@ export default function TranscribePage() {
     toast("Texto copiado al portapapeles");
   };
 
-  return (    <div className="min-h-screen bg-white text-black p-6 md:p-12 relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
-        <img src="/img/trancr.png" alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/80 to-white"></div>
-      </div>
-
+  return (    <div className="min-h-screen bg-white text-black p-4 md:p-12 relative overflow-hidden font-sans">
       <div className="max-w-6xl mx-auto relative z-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-20">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 md:mb-20 pt-4 md:pt-0">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 mb-8">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Powered by Whisper-v3 Large</span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase text-black">AUDIO <span className="text-green-600">NOTAS</span></h1>
-          <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[11px] max-w-2xl">Transcripción instantánea de alta fidelidad para clases, conferencias y seminarios académicos.</p>
+          <h1 className="text-4xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase text-black leading-none">AUDIO <br className="md:hidden" /><span className="text-green-600">NOTAS</span></h1>
+          <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px] md:text-[11px] max-w-2xl">Transcripción instantánea de alta fidelidad para clases y seminarios académicos.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
