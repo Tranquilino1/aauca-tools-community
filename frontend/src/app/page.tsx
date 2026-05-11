@@ -128,10 +128,10 @@ export default function Home() {
         )}
       </motion.nav>
 
-      {/* 1. Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-white px-4">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-white"></div>
+      {/* 1. Hero Section - CLEAN WHITE VERSION */}
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-white px-4 border-b border-black/5">
+        <div className="absolute inset-0 z-0 bg-white">
+          {/* Fondo blanco puro, sin imágenes */}
         </div>
         <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }} className="relative z-10 max-w-6xl mx-auto text-center px-4">
           <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 mb-8">
