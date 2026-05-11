@@ -4,11 +4,10 @@ python-multipart
 google-generativeai
 groq
 supabase
+python-dotenv
 pdf2docx
+pdfplumber
 pandas
 openpyxl
 python-pptx
-PyMuPDF
-python-dotenv
-pydantic
-pydantic-settings
+pydub

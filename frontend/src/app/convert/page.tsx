@@ -1,157 +1,148 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, Download, Upload, Loader2, ChevronLeft, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
-import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FileText, 
+  FileSpreadsheet, 
+  Presentation, 
+  Upload, 
+  CheckCircle2, 
+  ArrowRight,
+  Loader2,
+  FileDown
+} from 'lucide-react';
+import { uploadDocument } from '@/lib/api';
+
+const FORMATS = [
+  { id: 'docx', label: 'Microsoft Word', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+  { id: 'xlsx', label: 'Microsoft Excel', icon: FileSpreadsheet, color: 'text-green-500', bg: 'bg-green-500/10' },
+  { id: 'pptx', label: 'PowerPoint', icon: Presentation, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+];
 
 export default function ConvertPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [targetFormat, setTargetFormat] = useState('docx');
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'converting' | 'success'>('idle');
+  const [downloadUrl, setDownloadUrl] = useState('');
 
-  const handleUpload = async () => {
+  const handleConvert = async () => {
     if (!file) return;
-    setLoading(true);
-    setSuccess(false);
-
-    const formData = new FormData();
-    formData.append('file', file);
-
+    setStatus('uploading');
+    
     try {
-      // 1. Subir primero el archivo al almacenamiento (opcional, pero el endpoint actual usa file_name)
-      // Para simplificar, usaremos un nuevo endpoint o el actual si pasamos el archivo directo.
-      // Vamos a ajustar el backend para que acepte el archivo directamente si es necesario, 
-      // pero por ahora seguiremos la lógica de subir y luego convertir.
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('target_format', targetFormat);
       
-      const uploadRes = await axios.post('http://localhost:8000/upload', formData);
-      const fileName = uploadRes.data.filename;
-
-      // 2. Solicitar conversión
-      const convertRes = await axios.post(
-        `http://localhost:8000/convert/pdf-to-word?file_name=${fileName}`, 
-        null, 
-        { responseType: 'blob' }
-      );
-
-      // 3. Descargar el archivo resultante
-      const url = window.URL.createObjectURL(new Blob([convertRes.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName.replace('.pdf', '.docx'));
-      document.body.appendChild(link);
-      link.click();
+      const response = await fetch('http://localhost:8000/convert', {
+        method: 'POST',
+        body: formData,
+      });
       
-      setSuccess(true);
+      const data = await response.json();
+      if (data.status === 'success') {
+        setDownloadUrl(`http://localhost:8000${data.download_url}`);
+        setStatus('success');
+      }
     } catch (error) {
-      console.error("Error en la conversión:", error);
-      alert("Hubo un error al convertir el archivo.");
-    } finally {
-      setLoading(false);
+      alert("Error en la conversión");
+      setStatus('idle');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#020205] text-white p-8">
-      {/* Background Decor */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[120px]"></div>
-      </div>
-
-      <div className="max-w-3xl mx-auto">
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-12 transition-colors">
-          <ChevronLeft className="w-5 h-5" /> Volver al Inicio
-        </Link>
-
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Conversor PDF a Word
-          </h1>
-          <p className="text-gray-400">Convierte tus documentos académicos manteniendo el diseño original.</p>
+    <div className="min-h-screen bg-black text-white p-6 md:p-12">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto">
+        <div className="mb-12">
+          <h1 className="text-5xl font-black tracking-tighter mb-4 italic">CONVERSOR <span className="text-yellow-400">TOTAL</span></h1>
+          <p className="text-gray-400 font-bold uppercase tracking-widest text-[11px]">Transforma tus PDFs al formato que necesites en segundos</p>
         </div>
 
-        <div className="glass p-12 rounded-[2.5rem] border border-white/10 text-center">
-          {!file ? (
-            <label className="flex flex-col items-center gap-6 cursor-pointer group">
-              <div className="w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center border border-white/10 group-hover:border-blue-500/50 group-hover:bg-blue-500/5 transition-all duration-500">
-                <Upload className="w-10 h-10 text-blue-400" />
-              </div>
-              <div>
-                <p className="text-xl font-semibold mb-2">Haz clic para subir un PDF</p>
-                <p className="text-sm text-gray-500">Máximo 50MB</p>
-              </div>
-              <input 
-                type="file" 
-                accept=".pdf" 
-                className="hidden" 
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-              />
-            </label>
-          ) : (
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-                <FileText className="w-8 h-8 text-blue-400" />
-                <div className="text-left">
-                  <p className="font-medium truncate max-w-[200px]">{file.name}</p>
-                  <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Lado Izquierdo: Carga de Archivos */}
+          <div className="space-y-8">
+            <div 
+              className={`border-2 border-dashed rounded-[3rem] p-12 text-center transition-all ${file ? 'border-yellow-400 bg-yellow-400/5' : 'border-white/10 hover:border-yellow-400/50'}`}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { e.preventDefault(); setFile(e.dataTransfer.files[0]); }}
+            >
+              <input type="file" id="pdf-upload" hidden onChange={(e) => setFile(e.target.files?.[0] || null)} accept=".pdf" />
+              <label htmlFor="pdf-upload" className="cursor-pointer block">
+                <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <Upload className={`w-10 h-10 ${file ? 'text-yellow-400' : 'text-gray-500'}`} />
                 </div>
-                <button 
-                  onClick={() => {setFile(null); setSuccess(false);}} 
-                  className="text-gray-500 hover:text-red-400 p-2"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {!success ? (
-                <button 
-                  onClick={handleUpload}
-                  disabled={loading}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-lg flex items-center justify-center gap-3 glow disabled:opacity-50"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-6 h-6 animate-spin" /> Convirtiendo...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-6 h-6" /> Convertir ahora
-                    </>
-                  )}
-                </button>
-              ) : (
-                <div className="flex flex-col items-center gap-4 animate-float">
-                  <CheckCircle className="w-16 h-16 text-emerald-500" />
-                  <p className="text-xl font-bold">¡Conversión lista!</p>
-                  <button 
-                    onClick={() => {setFile(null); setSuccess(false);}}
-                    className="text-blue-400 hover:underline"
-                  >
-                    Convertir otro archivo
-                  </button>
-                </div>
-              )}
+                <h3 className="text-xl font-bold mb-2">{file ? file.name : "Suelta tu PDF aquí"}</h3>
+                <p className="text-sm text-gray-500 font-medium">o haz clic para buscar en tu dispositivo</p>
+              </label>
             </div>
-          )}
-        </div>
 
-        {/* Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-          <div className="p-6 rounded-3xl glass border border-white/5">
-            <h3 className="font-bold mb-2 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div> Privacidad Total
-            </h3>
-            <p className="text-sm text-gray-500">Tus archivos se procesan localmente y se eliminan después de la conversión.</p>
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.3em] ml-4">Selecciona el formato de salida</h4>
+              <div className="grid grid-cols-1 gap-3">
+                {FORMATS.map((f) => (
+                  <button 
+                    key={f.id}
+                    onClick={() => setTargetFormat(f.id)}
+                    className={`flex items-center gap-4 p-5 rounded-3xl border transition-all ${targetFormat === f.id ? 'border-yellow-400 bg-yellow-400/10' : 'border-white/5 bg-white/5 hover:bg-white/10'}`}
+                  >
+                    <div className={`p-3 rounded-2xl ${f.bg}`}><f.icon className={`w-6 h-6 ${f.color}`} /></div>
+                    <span className="font-bold">{f.label}</span>
+                    {targetFormat === f.id && <CheckCircle2 className="w-5 h-5 text-yellow-400 ml-auto" />}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="p-6 rounded-3xl glass border border-white/5">
-            <h3 className="font-bold mb-2 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-purple-500"></div> Formato Nativo
-            </h3>
-            <p className="text-sm text-gray-500">Generamos archivos .docx editables compatibles con Microsoft Word.</p>
+
+          {/* Lado Derecho: Estado y Acciones */}
+          <div className="flex flex-col justify-center items-center text-center p-12 glass-card-aauca rounded-[3rem] border border-white/5 min-h-[400px]">
+            <AnimatePresence mode="wait">
+              {status === 'idle' && (
+                <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div className="w-24 h-24 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+                    <FileText className="w-12 h-12 text-gray-700" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-4">Listo para empezar</h3>
+                  <p className="text-gray-500 text-sm mb-8 font-medium">Carga un archivo para activar el motor de conversión inteligente.</p>
+                  <button 
+                    onClick={handleConvert}
+                    disabled={!file}
+                    className="px-10 py-5 rounded-2xl bg-yellow-400 text-black font-black text-lg disabled:opacity-30 disabled:grayscale transition-all flex items-center gap-3 yellow-glow"
+                  >
+                    Convertir Ahora <ArrowRight className="w-6 h-6" />
+                  </button>
+                </motion.div>
+              )}
+
+              {status === 'uploading' && (
+                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center">
+                  <Loader2 className="w-16 h-16 text-yellow-400 animate-spin mb-6" />
+                  <h3 className="text-2xl font-black italic">PROCESANDO...</h3>
+                  <p className="text-gray-500 font-bold mt-2">La IA está reconstruyendo el documento</p>
+                </motion.div>
+              )}
+
+              {status === 'success' && (
+                <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
+                  <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/30">
+                    <CheckCircle2 className="w-12 h-12 text-green-500" />
+                  </div>
+                  <h3 className="text-3xl font-black mb-4 tracking-tighter">¡LOGRADO!</h3>
+                  <p className="text-gray-500 mb-8 font-medium">Tu archivo está optimizado y listo para descargar.</p>
+                  <a 
+                    href={downloadUrl} 
+                    download
+                    className="px-10 py-5 rounded-2xl bg-white text-black font-black text-lg hover:bg-gray-100 transition-all flex items-center gap-3 shadow-2xl"
+                  >
+                    Descargar Archivo <FileDown className="w-6 h-6" />
+                  </a>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,98 +1,155 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Paperclip, Book, Bot, User, ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Send, 
+  Upload, 
+  BookOpen, 
+  Sparkles, 
+  MessageSquare, 
+  BrainCircuit,
+  FileText,
+  Loader2,
+  ChevronRight
+} from 'lucide-react';
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: '¡Hola! Soy el núcleo de AAUCATools. Sube un libro o PDF y pregúntame lo que necesites.' }
-  ]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'ai', content: string }[]>([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [currentFile, setCurrentFile] = useState<string | null>(null);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages([...messages, { role: 'user', content: input }]);
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input) return;
+
+    const newMessages = [...messages, { role: 'user' as const, content: input }];
+    setMessages(newMessages);
     setInput('');
-    // Aquí conectaremos con el backend en el siguiente paso
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8000/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ text: input })
+      });
+      const data = await response.json();
+      setMessages([...newMessages, { role: 'ai' as const, content: data.summary }]);
+    } catch (error) {
+      alert("Error al conectar con la IA");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGetSummary = async () => {
+    setSummaryLoading(true);
+    // Simulación de resumen de libro largo con Gemini
     setTimeout(() => {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Recibido. Estoy analizando el documento para darte la respuesta más precisa basada en las fuentes.' 
+      setMessages([...messages, { 
+        role: 'ai', 
+        content: "### Resumen Ejecutivo del Libro\n\nEste documento trata sobre los fundamentos de la Inteligencia Artificial aplicados a la educación. Los puntos clave son:\n1. Personalización del aprendizaje.\n2. Automatización de tareas administrativas.\n3. Ética en el uso de algoritmos." 
       }]);
-    }, 1000);
+      setSummaryLoading(false);
+    }, 2000);
   };
 
   return (
-    <div className="flex h-screen bg-[#020205] text-white">
-      {/* Sidebar - Documentos */}
-      <aside className="w-80 border-r border-white/10 glass flex flex-col">
-        <div className="p-6 border-b border-white/10 flex items-center gap-3">
-          <Link href="/" className="hover:text-purple-400 transition-colors">
-            <ChevronLeft className="w-5 h-5" />
-          </Link>
-          <h2 className="font-bold text-lg">Biblioteca</h2>
+    <div className="flex h-screen bg-black text-white overflow-hidden">
+      {/* Sidebar - Gestión de Documentos */}
+      <aside className="w-80 border-r border-white/5 bg-white/2 flex flex-col p-6 hidden md:flex">
+        <div className="mb-10">
+          <img src="/img/logo.png" alt="AAUCA" className="h-10 mb-6 opacity-80" />
+          <h2 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.3em]">Mis Documentos</h2>
         </div>
-        <div className="flex-1 p-4 overflow-y-auto space-y-3">
-          <div className="p-4 rounded-xl bg-purple-600/10 border border-purple-500/30 flex items-center gap-3 cursor-pointer">
-            <Book className="w-5 h-5 text-purple-400" />
+        
+        <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center gap-3 mb-8 text-sm font-bold">
+          <Upload className="w-4 h-4" /> Subir Libro (PDF)
+        </button>
+
+        <div className="flex-1 space-y-4">
+          <div className="p-4 rounded-2xl bg-yellow-400/10 border border-yellow-400/20 flex items-center gap-4 group cursor-pointer">
+            <FileText className="w-5 h-5 text-yellow-400" />
             <div className="overflow-hidden">
-              <p className="text-sm font-medium truncate">Cálculo Diferencial.pdf</p>
-              <p className="text-[10px] text-purple-400/70">Indexado - Pág. 450</p>
+              <p className="text-xs font-black truncate">Calculo_Diferencial.pdf</p>
+              <p className="text-[9px] text-yellow-400/50 uppercase font-bold">Analizado</p>
             </div>
           </div>
-          <button className="w-full p-4 rounded-xl border border-dashed border-white/20 hover:border-purple-500/50 transition-all flex flex-col items-center gap-2 group">
-            <Paperclip className="w-5 h-5 text-gray-500 group-hover:text-purple-400" />
-            <span className="text-xs text-gray-500 group-hover:text-gray-300">Subir nuevo libro</span>
-          </button>
         </div>
       </aside>
 
-      {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="h-16 border-b border-white/10 px-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            <span className="text-sm font-medium text-gray-300">Gemini 1.5 Flash Conectado</span>
+      {/* Área Principal de Chat */}
+      <main className="flex-1 flex flex-col relative">
+        <header className="p-6 border-b border-white/5 flex items-center justify-between bg-black/50 backdrop-blur-xl">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+              <BrainCircuit className="w-6 h-6 text-black" />
+            </div>
+            <div>
+              <h1 className="text-sm font-black uppercase tracking-widest italic">BIBLIOTECA <span className="text-yellow-400">INTELIGENTE</span></h1>
+              <p className="text-[10px] font-bold text-gray-500">GEMINI 1.5 FLASH ACTIVE</p>
+            </div>
           </div>
+          <button 
+            onClick={handleGetSummary}
+            disabled={summaryLoading}
+            className="px-6 py-2.5 rounded-full bg-white text-black font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-gray-100 transition-all"
+          >
+            {summaryLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            Resumen de Élite
+          </button>
         </header>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 md:p-12 space-y-8 custom-scrollbar">
+          {messages.length === 0 && (
+            <div className="h-full flex flex-col items-center justify-center text-center opacity-20">
+              <MessageSquare className="w-24 h-24 mb-6" />
+              <h2 className="text-3xl font-black italic uppercase">Inicia la conversación</h2>
+              <p className="max-w-md font-bold mt-2">Haz preguntas sobre tus PDFs o pide un resumen estructurado del contenido.</p>
+            </div>
+          )}
+          
           {messages.map((msg, i) => (
-            <div key={i} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                msg.role === 'assistant' ? 'bg-purple-600' : 'bg-white/10'
-              }`}>
-                {msg.role === 'assistant' ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
+            <motion.div 
+              key={i} 
+              initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`max-w-[80%] p-6 rounded-[2rem] ${msg.role === 'user' ? 'bg-yellow-400 text-black font-bold' : 'bg-white/5 border border-white/10 text-gray-300'}`}>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
               </div>
-              <div className={`max-w-[70%] p-4 rounded-2xl ${
-                msg.role === 'assistant' ? 'glass border border-white/10' : 'bg-purple-600 text-white'
-              }`}>
-                <p className="text-sm leading-relaxed">{msg.content}</p>
+            </motion.div>
+          ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-white/5 p-6 rounded-[2rem] flex items-center gap-3">
+                <Loader2 className="w-5 h-5 animate-spin text-yellow-400" />
+                <span className="text-sm font-bold italic opacity-50">IA pensando...</span>
               </div>
             </div>
-          ))}
+          )}
         </div>
 
-        {/* Input Area */}
-        <div className="p-8 pt-0">
-          <div className="max-w-4xl mx-auto relative">
+        <div className="p-6 md:p-12 bg-gradient-to-t from-black to-transparent">
+          <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
             <input 
+              type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Pregunta algo sobre el libro..."
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-6 pr-14 focus:outline-none focus:border-purple-500/50 transition-all text-sm"
+              placeholder="Pregunta algo sobre el libro o pide un resumen..."
+              className="w-full bg-white/5 border border-white/10 rounded-3xl py-6 pl-8 pr-20 focus:border-yellow-400 transition-all font-medium text-lg outline-none backdrop-blur-xl"
             />
             <button 
-              onClick={handleSend}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-purple-600 rounded-xl hover:bg-purple-500 transition-colors"
+              type="submit"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-yellow-400 rounded-2xl text-black hover:bg-yellow-300 transition-all shadow-xl"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-6 h-6" />
             </button>
-          </div>
+          </form>
         </div>
       </main>
     </div>

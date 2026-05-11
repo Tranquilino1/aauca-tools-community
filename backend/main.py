@@ -1,162 +1,106 @@
-import os
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 from groq import Groq
-from supabase import create_client, Client
+import os
 from dotenv import load_dotenv
-import shutil
 from pdf2docx import Converter
+import pdfplumber
 import pandas as pd
-import fitz  # PyMuPDF
 from pptx import Presentation
-from utils.rag import RAGManager
+from pptx.util import Inches
+import shutil
+import uuid
 
 load_dotenv()
 
-app = FastAPI(title="AAUCATools Community API")
+app = FastAPI()
 
-# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# AI & DB Clients
+# Clientes de IA
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-gemini_model = genai.GenerativeModel('gemini-1.5-flash')
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-supabase: Client = create_client(
-    os.getenv("SUPABASE_URL", ""), 
-    os.getenv("SUPABASE_KEY", "")
-)
-rag_manager = RAGManager()
 
-SYSTEM_PROMPT = """Eres el núcleo de AAUCATools Community. Tu misión es ayudar a estudiantes a comprender material académico complejo.
-* Si resumes un libro, estructura la respuesta en: Conceptos Clave, Fórmulas/Teoremas importantes y un Glosario.
-* Al responder sobre un PDF cargado, siempre cita el número de página o la sección.
-* Mantén un tono alentador, técnico y preciso. Si el usuario sube un audio, asume que es una clase magistral y extrae los puntos más relevantes para un examen."""
+UPLOAD_DIR = "uploads"
+CONVERT_DIR = "converted"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(CONVERT_DIR, exist_ok=True)
 
-@app.get("/")
-async def root():
-    return {"message": "AAUCATools Community API is running"}
-
-@app.post("/upload")
-async def upload_document(file: UploadFile = File(...)):
-    """Handles document uploads to Supabase Storage and initial processing."""
+@app.post("/convert")
+async def convert_file(file: UploadFile = File(...), target_format: str = Form(...)):
+    file_id = str(uuid.uuid4())
+    input_path = os.path.join(UPLOAD_DIR, f"{file_id}_{file.filename}")
+    
+    with open(input_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    output_filename = f"{file_id}.{target_format}"
+    output_path = os.path.join(CONVERT_DIR, output_filename)
+    
     try:
-        file_path = f"temp_{file.filename}"
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        if target_format == "docx":
+            cv = Converter(input_path)
+            cv.convert(output_path)
+            cv.close()
         
-        # Upload to Supabase Storage (Assumes 'documents' bucket exists)
-        with open(file_path, "rb") as f:
-            supabase.storage.from_("documents").upload(file.filename, f)
+        elif target_format == "xlsx":
+            with pdfplumber.open(input_path) as pdf:
+                all_tables = []
+                for page in pdf.pages:
+                    table = page.extract_table()
+                    if table:
+                        all_tables.append(pd.DataFrame(table))
+                if all_tables:
+                    df = pd.concat(all_tables)
+                    df.to_excel(output_path, index=False)
+                else:
+                    raise HTTPException(status_code=400, detail="No se encontraron tablas en el PDF")
         
-        os.remove(file_path)
-        return {"filename": file.filename, "status": "uploaded"}
+        elif target_format == "pptx":
+            prs = Presentation()
+            with pdfplumber.open(input_path) as pdf:
+                for page in pdf.pages:
+                    slide = prs.slides.add_slide(prs.slide_layouts[5])
+                    text = page.extract_text()
+                    if text:
+                        textbox = slide.shapes.add_textbox(Inches(1), Inches(1), Inches(8), Inches(5))
+                        textbox.text = text
+            prs.save(output_path)
+            
+        return {"download_url": f"/download/{output_filename}", "status": "success"}
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/summarize")
-async def summarize_book(file_name: str):
-    """Summarizes a book using Gemini 1.5 Flash's 1M token window."""
-    try:
-        # 1. Get file from Supabase Storage
-        res = supabase.storage.from_("documents").download(file_name)
-        
-        # 2. Convert bytes to GenerativeAI Part (assuming it's a PDF)
-        # Note: In a production environment, you'd use the File API for larger files
-        # but for demonstration, we pass the text or the file directly if supported.
-        
-        # Extract text using PyMuPDF for the prompt
-        doc = fitz.open(stream=res, filetype="pdf")
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        
-        prompt = f"{SYSTEM_PROMPT}\n\nResume el siguiente contenido:\n\n{text[:30000]}" # Limit for simple call, use File API for >30k
-        
-        response = gemini_model.generate_content(prompt)
-        return {"summary": response.text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/convert/pdf-to-word")
-async def convert_pdf_to_word(file_name: str):
-    """Converts a PDF stored in Supabase to Word and returns it."""
-    try:
-        # Download from Supabase
-        pdf_data = supabase.storage.from_("documents").download(file_name)
-        temp_pdf = f"temp_{file_name}"
-        temp_docx = temp_pdf.replace(".pdf", ".docx")
-        
-        with open(temp_pdf, "wb") as f:
-            f.write(pdf_data)
-        
-        # Convert
-        cv = Converter(temp_pdf)
-        cv.convert(temp_docx)
-        cv.close()
-        
-        # Return file for download
-        return FileResponse(
-            path=temp_docx, 
-            filename=file_name.replace(".pdf", ".docx"),
-            media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        if os.path.exists(temp_pdf):
-            os.remove(temp_pdf)
 
 @app.post("/transcribe")
-async def transcribe_audio(file: UploadFile = File(...)):
-    """Transcribes audio using Groq Whisper-3."""
+async def transcribe(file: UploadFile = File(...)):
+    temp_path = f"temp_{file.filename}"
+    with open(temp_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
     try:
-        # Save temp file
-        temp_file = f"temp_{file.filename}"
-        with open(temp_file, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            
-        with open(temp_file, "rb") as audio_file:
-            translation = groq_client.audio.translations.create(
-                file=(temp_file, audio_file.read()),
+        with open(temp_path, "rb") as audio_file:
+            transcription = groq_client.audio.transcriptions.create(
+                file=(temp_path, audio_file.read()),
                 model="whisper-large-v3",
+                response_format="text"
             )
-        
-        os.remove(temp_file)
-        return {"transcription": translation.text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"text": transcription}
+    finally:
+        os.remove(temp_path)
 
-@app.post("/chat")
-async def chat_with_pdf(question: str, file_id: str = None):
-    """RAG-powered chat with PDF context and exact sources."""
-    try:
-        # 1. Search for relevant context
-        context_chunks = await rag_manager.query(question, file_id)
-        
-        context_text = "\n\n".join([
-            f"[Página {c['metadata']['page']}]: {c['content']}" 
-            for c in context_chunks
-        ])
-        
-        # 2. Generate response with Gemini
-        prompt = f"{SYSTEM_PROMPT}\n\nContexto:\n{context_text}\n\nPregunta: {question}"
-        response = gemini_model.generate_content(prompt)
-        
-        return {
-            "answer": response.text,
-            "sources": context_chunks
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@app.post("/summarize")
+async def summarize(text: str = Form(...)):
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    prompt = f"Resume el siguiente contenido académico de forma estructurada y profesional: {text}"
+    response = model.generate_content(prompt)
+    return {"summary": response.text}
 
 if __name__ == "__main__":
     import uvicorn
