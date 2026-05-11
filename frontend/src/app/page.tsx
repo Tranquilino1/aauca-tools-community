@@ -159,7 +159,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
           <div className="max-w-2xl text-left">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 mb-8">
-              <Code className="w-4 h-4 text-yellow-600" />
+              <Code2 className="w-4 h-4 text-yellow-600" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-700">Hub Tecnológico</span>
             </div>
             <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase italic text-black leading-[0.8] mb-8 text-shimmer-yellow">HERRAMIENTAS <br /> <span className="text-black">DE ÉXITO.</span></h2>
