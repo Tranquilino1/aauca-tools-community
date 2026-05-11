@@ -1,9 +1,11 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 from groq import Groq
 import os
-from dotenv import load_dotenv
 from pdf2docx import Converter
 import pdfplumber
 import pandas as pd
@@ -14,8 +16,6 @@ import uuid
 from utils.rag import RAGManager
 
 rag = RAGManager()
-
-load_dotenv()
 
 app = FastAPI()
 

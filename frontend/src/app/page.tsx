@@ -14,8 +14,6 @@ import {
   Users2,
   UserPlus,
   LogIn,
-  Zap,
-  Sparkles,
   Share2,
   Heart,
   Menu,
