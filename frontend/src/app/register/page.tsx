@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight, Chrome } from 'lucide-react';
 import Link from 'next/link';
 
-export default function RegisterPage() {
+export default function Page() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');

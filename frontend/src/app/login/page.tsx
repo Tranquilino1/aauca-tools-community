@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Chrome, Mail, Lock, ArrowRight, Github } from 'lucide-react';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function Page() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
