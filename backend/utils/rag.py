@@ -42,5 +42,9 @@ class RAGManager:
         if file_id:
             rpc_params["filter_file_id"] = file_id
 
-        result = self.supabase.rpc("match_documents", rpc_params).execute()
-        return result.data
+        try:
+            result = self.supabase.rpc("match_documents", rpc_params).execute()
+            return result.data if result.data else []
+        except Exception as e:
+            print(f"Error en búsqueda vectorial: {e}")
+            return []

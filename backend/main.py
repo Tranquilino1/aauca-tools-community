@@ -146,24 +146,40 @@ async def upload_pdf(file: UploadFile = File(...)):
 
 @app.post("/chat")
 async def chat_with_docs(question: str = Form(...), file_id: str = Form(None)):
-    # Buscar contexto en Supabase
-    context_chunks = await rag.query(question, file_id)
-    context_text = "\n".join([c['content'] for c in context_chunks]) if context_chunks else ""
-    
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    prompt = f"""
-    Eres un asistente académico de la AAUCA. Responde la pregunta basándote únicamente en el contexto proporcionado.
-    Si la información no está en el contexto, dilo amablemente.
-    
-    CONTEXTO:
-    {context_text}
-    
-    PREGUNTA:
-    {question}
-    """
-    
-    response = model.generate_content(prompt)
-    return {"response": response.text}
+    try:
+        # Buscar contexto en Supabase
+        context_chunks = await rag.query(question, file_id)
+        
+        # Si no hay contexto y hay un archivo seleccionado, avisar
+        if not context_chunks and file_id:
+            context_text = "No se encontró información específica en el documento cargado."
+        else:
+            context_text = "\n".join([c['content'] for c in context_chunks]) if context_chunks else "Sin contexto adicional."
+        
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"""
+        ERES: Un Tutor de IA de Élite de la Universidad Afroamericana de África Central (AAUCA).
+        TU MISIÓN: Responder de forma brillante, académica y precisa basándote en el CONTEXTO proporcionado.
+        
+        REGLAS DE ORO:
+        1. Si la respuesta está en el CONTEXTO, dalo de forma estructurada.
+        2. Si no está en el CONTEXTO, utiliza tu conocimiento general pero menciona que no está en el libro.
+        3. Mantén un tono motivador y profesional.
+        
+        CONTEXTO DEL LIBRO:
+        {context_text}
+        
+        PREGUNTA DEL ESTUDIANTE:
+        {question}
+        
+        RESPUESTA ACADÉMICA:
+        """
+        
+        response = model.generate_content(prompt)
+        return {"response": response.text}
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno en el motor de IA. Verifica la base de datos.")
 
 if __name__ == "__main__":
     import uvicorn

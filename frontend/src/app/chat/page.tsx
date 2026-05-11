@@ -14,6 +14,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/components/Toast';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<{ role: 'user' | 'ai', content: string }[]>([]);
@@ -22,6 +23,7 @@ export default function ChatPage() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [currentFileId, setCurrentFileId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,11 +43,11 @@ export default function ChatPage() {
       if (data.status === 'success') {
         setCurrentFileId(data.file_id);
         setCurrentFile(file.name);
-        alert("Documento procesado con éxito. Ahora puedes hacer preguntas.");
+        toast("Documento procesado con éxito. Ahora puedes hacer preguntas.", "success");
       }
     } catch (error) {
       console.error(error);
-      alert("Error al subir el documento.");
+      toast("Error al subir el documento.", "error");
     } finally {
       setLoading(false);
     }
@@ -75,7 +77,7 @@ export default function ChatPage() {
       setMessages([...newMessages, { role: 'ai' as const, content: data.response }]);
     } catch (error) {
       console.error("Chat error:", error);
-      alert("Error al conectar con la IA");
+      toast("Error al conectar con la IA. Verifica tu conexión.", "error");
     } finally {
       setLoading(false);
     }
