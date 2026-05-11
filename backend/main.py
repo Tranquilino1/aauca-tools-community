@@ -21,10 +21,20 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://aauca-tools-community.vercel.app",
+        "http://localhost:3000",
+        "*"
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Logging para depuración
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Clientes de IA
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
