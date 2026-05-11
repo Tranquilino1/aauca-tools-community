@@ -14,6 +14,8 @@ import {
   Users2,
   UserPlus,
   LogIn,
+  Zap,
+  Sparkles,
   Share2,
   Heart,
   Menu,
@@ -142,9 +144,10 @@ export default function Home() {
             La navaja suiza de IA para el estudiante de la <span className="text-yellow-600 font-bold">AAUCA</span>. Convierte, transcribe y chatea con tus libros en un solo lugar.
           </motion.p>
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Link href="/chat">
-              <button className="px-12 py-5 rounded-2xl bg-yellow-400 text-black hover:bg-yellow-300 transition-all font-black text-xl flex items-center gap-3 yellow-glow">
-                Empezar a estudiar <ArrowRight className="w-6 h-6" />
+            <Link href="/login">
+              <button className="group relative px-12 py-6 rounded-2xl bg-black text-white font-black text-xl overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span className="relative flex items-center gap-3 uppercase">Empezar ahora <Zap className="w-6 h-6 text-yellow-400" /></span>
               </button>
             </Link>
           </motion.div>
