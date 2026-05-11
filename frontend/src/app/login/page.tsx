@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
-import { Chrome, Mail, Lock, ArrowRight, Github } from 'lucide-react';
+import { Globe, Mail, Lock, ArrowRight, Code } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Page() {
@@ -46,7 +46,7 @@ export default function Page() {
             onClick={handleGoogleLogin}
             className="w-full py-4 px-6 rounded-2xl bg-white text-black font-black flex items-center justify-center gap-4 hover:bg-gray-100 transition-all mb-8 shadow-xl"
           >
-            <Chrome className="w-6 h-6 text-red-500" />
+            <Globe className="w-6 h-6 text-red-500" />
             Continuar con Google
           </button>
 

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, ArrowRight, Chrome } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Globe } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Page() {
