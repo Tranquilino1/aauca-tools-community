@@ -157,15 +157,89 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* 2. Experience Showcase - Premium Visual Gallery */}
-      <section className="py-40 bg-white overflow-hidden">
+      {/* 2. Bento Grid Herramientas */}
+      <section id="herramientas" className="max-w-7xl mx-auto px-6 py-32">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+          <div className="max-w-2xl text-left">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 mb-8">
+              <Code className="w-4 h-4 text-yellow-600" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-700">Hub Tecnológico</span>
+            </div>
+            <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase italic text-black leading-[0.8] mb-8 text-shimmer-yellow">HERRAMIENTAS <br /> <span className="text-black">DE ÉXITO.</span></h2>
+            <p className="text-gray-500 font-bold uppercase tracking-[0.3em] text-[10px]">IA de alta fidelidad diseñada para el rigor académico de la AAUCA.</p>
+          </div>
+          <div className="hidden md:flex gap-4">
+            <div className="px-8 py-4 rounded-2xl bg-black text-white font-black text-xs uppercase tracking-widest shadow-2xl">REVISIÓN V.2.0</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[300px]">
+          <ToolCard 
+            href="/chat"
+            className="md:col-span-2 md:row-span-2"
+            icon={<Library className="w-16 h-16 md:w-24 md:h-24 text-yellow-500" />}
+            title="Biblioteca Inteligente"
+            desc="Sube tus libros y hazles preguntas en tiempo real. Análisis profundo potenciado por Gemini 1.5 Flash."
+            tag="PREMIUM AI"
+            color="border-yellow-400/20 hover:border-yellow-400"
+          />
+          <ToolCard 
+            href="/convert"
+            className="md:col-span-2"
+            icon={<FileSpreadsheet className="w-16 h-16 text-blue-500" />}
+            title="Conversor Total"
+            desc="Transformación precisa de PDF a formatos editables de Office."
+            tag="OFFICE ENGINE"
+            color="border-blue-500/20 hover:border-blue-500"
+          />
+          <ToolCard 
+            href="/transcribe"
+            className="md:col-span-1"
+            icon={<AudioLines className="w-16 h-16 text-green-600" />}
+            title="Audio-Notas"
+            desc="Transcripción perfecta de tus grabaciones."
+            tag="WHISPER V3"
+            color="border-green-500/20 hover:border-green-500"
+          />
+          <ToolCard 
+            href="/chat"
+            className="md:col-span-1"
+            icon={<BrainCircuit className="w-16 h-16 text-yellow-500" />}
+            title="Sintetizador"
+            desc="Resúmenes ejecutivos de libros extensos."
+            tag="GEMINI PRO"
+            color="border-yellow-500/20 hover:border-yellow-500"
+          />
+        </div>
+      </section>
+
+      {/* 3. Filosofía */}
+      <section id="nosotros" className="py-32 bg-gray-50 border-y border-black/5 px-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div className="relative rounded-[4rem] overflow-hidden border-4 border-white shadow-[0_40px_100px_rgba(0,0,0,0.1)] group">
+            <img src="/img/puerta.png" alt="Entrada AAUCA" className="w-full h-auto group-hover:scale-105 transition-transform duration-1000" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+          </div>
+          <div>
+            <h2 className="text-5xl md:text-6xl font-black tracking-tighter mb-12 text-black italic leading-none">FILOSOFÍA <br /> <span className="text-yellow-500">AAUCA.</span></h2>
+            <div className="space-y-10">
+              <PhilItem icon={<Users2 className="w-6 h-6 text-yellow-600" />} title="Por y para Oyala" desc="Nacido en el campus para elevar el nivel tecnológico de nuestra comunidad estudiantil." />
+              <PhilItem icon={<ShieldCheck className="w-6 h-6 text-yellow-600" />} title="Privacidad Total" desc="Tus documentos son tuyos. No almacenamos datos sensibles en nuestros servidores." />
+              <PhilItem icon={<Building2 className="w-6 h-6 text-yellow-600" />} title="Excelencia 2026" desc="Compromiso con la innovación constante en el corazón de Guinea Ecuatorial." />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Experience Showcase - Moved to bottom for better flow */}
+      <section className="py-40 bg-white overflow-hidden border-t border-black/5">
         <div className="max-w-7xl mx-auto px-6 mb-20 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 mb-8">
-            <Sparkles className="w-4 h-4 text-yellow-600" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-700">Entorno Tecnológico</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-8">
+            <Globe className="w-4 h-4 text-blue-600" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-700">Explora el Campus</span>
           </div>
           <h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase italic text-black leading-[0.8] mb-12">CIUDAD <br /> DE LA <span className="text-yellow-500 text-shimmer-yellow">PAZ.</span></h2>
-          <p className="text-gray-500 font-bold uppercase tracking-[0.4em] text-[11px] max-w-xl mx-auto">Explora la infraestructura de vanguardia donde nace la innovación académica de la AAUCA.</p>
+          <p className="text-gray-500 font-bold uppercase tracking-[0.4em] text-[11px] max-w-xl mx-auto">Vanguardia tecnológica en Guinea Ecuatorial.</p>
         </div>
 
         <div className="flex gap-8 px-6 overflow-x-auto pb-20 no-scrollbar snap-x">
@@ -182,7 +256,7 @@ export default function Home() {
               initial={{ opacity: 0, x: 100 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="min-w-[300px] md:min-w-[500px] h-[400px] md:h-[600px] rounded-[4rem] overflow-hidden relative group snap-center shadow-2xl"
+              className="min-w-[300px] md:min-w-[500px] h-[400px] md:h-[600px] rounded-[4rem] overflow-hidden relative group snap-center shadow-2xl border-4 border-white"
             >
               <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-12">
@@ -191,72 +265,6 @@ export default function Home() {
               </div>
             </motion.div>
           ))}
-        </div>
-      </section>
-
-      {/* 2.5 Bento Grid Herramientas */}
-      <section id="herramientas" className="max-w-7xl mx-auto px-6 py-32">
-        <div className="text-center mb-20">
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic text-black">Nuestras <span className="text-yellow-500">Herramientas</span></h2>
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-2">Tecnología de última generación al servicio del estudiante</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[300px]">
-          <ToolCard 
-            href="/chat"
-            className="md:col-span-2 md:row-span-2"
-            icon={<Library className="w-16 h-16 md:w-24 md:h-24 text-yellow-500 drop-shadow-[0_0_15px_rgba(250,204,21,0.2)]" />}
-            title="Biblioteca Inteligente"
-            desc="Sube tus libros y hazles preguntas. Potenciado por Gemini 1.5 Flash para un análisis profundo."
-            tag="IA AVANZADA"
-            color="border-yellow-400/20 hover:border-yellow-400"
-          />
-          <ToolCard 
-            href="/convert"
-            className="md:col-span-2"
-            icon={<FileSpreadsheet className="w-16 h-16 text-blue-500" />}
-            title="Conversor Total"
-            desc="PDF a Word, Excel o PPT en segundos manteniendo el diseño."
-            tag="DOCUMENTOS"
-            color="border-blue-500/20 hover:border-blue-500"
-          />
-          <ToolCard 
-            href="/transcribe"
-            className="md:col-span-1"
-            icon={<AudioLines className="w-16 h-16 text-green-600" />}
-            title="Audio-Notas"
-            desc="Transcripción de clases grabadas."
-            tag="WHISPER V3"
-            color="border-green-500/20 hover:border-green-500"
-          />
-          <ToolCard 
-            href="/chat"
-            className="md:col-span-1"
-            icon={<BrainCircuit className="w-16 h-16 text-yellow-500" />}
-            title="Sintetizador"
-            desc="Resúmenes de libros de 500+ páginas."
-            tag="GEMINI FLASH"
-            color="border-yellow-500/20 hover:border-yellow-500"
-          />
-        </div>
-      </section>
-
-
-
-      {/* 3. Filosofía */}
-      <section id="nosotros" className="py-32 bg-gray-50 border-y border-black/5 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className="relative rounded-[3rem] overflow-hidden border border-yellow-500/20 group shadow-2xl">
-            <img src="/img/puerta.png" alt="Entrada AAUCA" className="w-full h-auto group-hover:scale-105 transition-transform duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent"></div>
-          </div>
-          <div>
-            <h2 className="text-5xl font-black tracking-tighter mb-12 text-black italic">FILOSOFÍA <br /> <span className="text-yellow-500">COMUNITARIA.</span></h2>
-            <div className="space-y-10">
-              <PhilItem icon={<Users2 className="w-6 h-6 text-yellow-600" />} title="Hecho por la Comunidad" desc="Un proyecto nacido en el campus de la Ciudad de la Paz para resolver problemas reales de nuestros estudiantes." />
-              <PhilItem icon={<ShieldCheck className="w-6 h-6 text-yellow-600" />} title="Privacidad Local" desc="Tus documentos se procesan de forma segura. No almacenamos tus datos personales ni tus archivos de forma permanente." />
-              <PhilItem icon={<Building2 className="w-6 h-6 text-yellow-600" />} title="Excelencia AAUCA" desc="Tecnología de punta aplicada al rigor académico que nos caracteriza." />
-            </div>
-          </div>
         </div>
       </section>
 
