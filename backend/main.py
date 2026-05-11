@@ -78,6 +78,15 @@ async def convert_file(file: UploadFile = File(...), target_format: str = Form(.
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+from fastapi.responses import FileResponse
+
+@app.get("/download/{filename}")
+async def download_file(filename: str):
+    file_path = os.path.join(CONVERT_DIR, filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="Archivo no encontrado")
+
 @app.post("/transcribe")
 async def transcribe(file: UploadFile = File(...)):
     temp_path = f"temp_{file.filename}"

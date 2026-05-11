@@ -31,7 +31,7 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/summarize', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/summarize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ text: input })
@@ -39,6 +39,7 @@ export default function ChatPage() {
       const data = await response.json();
       setMessages([...newMessages, { role: 'ai' as const, content: data.summary }]);
     } catch (error) {
+      console.error("Chat error:", error);
       alert("Error al conectar con la IA");
     } finally {
       setLoading(false);

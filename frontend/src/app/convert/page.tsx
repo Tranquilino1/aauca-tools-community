@@ -35,14 +35,16 @@ export default function ConvertPage() {
       formData.append('file', file);
       formData.append('target_format', targetFormat);
       
-      const response = await fetch('http://localhost:8000/convert', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const response = await fetch(`${backendUrl}/convert`, {
         method: 'POST',
         body: formData,
       });
       
       const data = await response.json();
       if (data.status === 'success') {
-        setDownloadUrl(`http://localhost:8000${data.download_url}`);
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+        setDownloadUrl(`${backendUrl}${data.download_url}`);
         setStatus('success');
       }
     } catch (error) {
