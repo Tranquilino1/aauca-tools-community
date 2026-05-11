@@ -12,7 +12,7 @@ import {
   Loader2,
   FileDown
 } from 'lucide-react';
-import { uploadDocument } from '@/lib/api';
+import { useToast } from '@/components/Toast';
 
 const FORMATS = [
   { id: 'docx', label: 'Microsoft Word', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -25,6 +25,7 @@ export default function ConvertPage() {
   const [targetFormat, setTargetFormat] = useState('docx');
   const [status, setStatus] = useState<'idle' | 'uploading' | 'converting' | 'success'>('idle');
   const [downloadUrl, setDownloadUrl] = useState('');
+  const { toast } = useToast();
 
   const handleConvert = async () => {
     if (!file) return;
@@ -46,9 +47,10 @@ export default function ConvertPage() {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
         setDownloadUrl(`${backendUrl}${data.download_url}`);
         setStatus('success');
+        toast("Documento convertido con éxito", "success");
       }
     } catch (error) {
-      alert("Error en la conversión");
+      toast("Error en la conversión. Revisa el formato del archivo.", "error");
       setStatus('idle');
     }
   };

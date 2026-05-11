@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
+import { useToast } from '@/components/Toast';
+
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24">
     <path fill="#EA4335" d="M12 5.04c1.94 0 3.51.68 4.75 1.81l3.48-3.48C18.1 1.34 15.3 0 12 0 7.31 0 3.32 2.67 1.38 6.58L5.12 9.5C6.01 6.92 8.51 5.04 12 5.04z" />
@@ -20,9 +22,14 @@ export default function Page() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password || !name) {
+      toast("Por favor, completa todos los campos de registro.", "error");
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
@@ -32,8 +39,11 @@ export default function Page() {
         emailRedirectTo: `${window.location.origin}/chat`
       }
     });
-    if (error) alert(error.message);
-    else alert("¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.");
+    if (error) {
+      toast(`Error: ${error.message}`, "error");
+    } else {
+      toast("¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.", "success");
+    }
     setLoading(false);
   };
 
@@ -42,7 +52,7 @@ export default function Page() {
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/chat` }
     });
-    if (error) alert("Error: Verifica la configuración de Google en Supabase.");
+    if (error) toast("Error en la conexión con Google.", "error");
   };
 
   return (

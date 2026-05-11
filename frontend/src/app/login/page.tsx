@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ArrowRight, Code } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/components/Toast';
+
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24">
     <path fill="#EA4335" d="M12 5.04c1.94 0 3.51.68 4.75 1.81l3.48-3.48C18.1 1.34 15.3 0 12 0 7.31 0 3.32 2.67 1.38 6.58L5.12 9.5C6.01 6.92 8.51 5.04 12 5.04z" />
@@ -18,13 +20,22 @@ export default function Page() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast("Por favor, completa todos los campos.", "error");
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert(error.message);
-    else window.location.href = '/chat';
+    if (error) {
+      toast("Credenciales incorrectas. Revisa tu correo y contraseña.", "error");
+    } else {
+      toast("¡Bienvenido de nuevo!");
+      window.location.href = '/chat';
+    }
     setLoading(false);
   };
 
@@ -35,7 +46,7 @@ export default function Page() {
         redirectTo: `${window.location.origin}/chat`
       }
     });
-    if (error) alert("Error: Asegúrate de que el proveedor Google esté habilitado en el Dashboard de Supabase.");
+    if (error) toast("Error: Verifica la configuración de Google en tu panel.", "error");
   };
 
   return (

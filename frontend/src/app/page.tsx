@@ -28,11 +28,13 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/Toast';
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [userCount, setUserCount] = useState(1248);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -339,7 +341,7 @@ export default function Home() {
                 <button 
                   onClick={() => {
                     navigator.clipboard.writeText("https://aauca-tools-community.vercel.app");
-                    alert("¡Enlace copiado con éxito!");
+                    toast("Enlace copiado. ¡Gracias por compartir!", "success");
                   }}
                   className="flex items-center justify-center gap-3 py-5 rounded-2xl bg-black text-white font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-black/20"
                 >
@@ -348,7 +350,7 @@ export default function Home() {
               </div>
             </div>
             <div className="bg-yellow-400 py-4 text-center">
-              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-black">Ciudad de la Paz • Oyala • AAUCA 2024</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-black">Ciudad de la Paz • Oyala • AAUCA 2026</p>
             </div>
           </motion.div>
         </div>

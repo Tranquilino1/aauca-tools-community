@@ -11,11 +11,13 @@ import {
   CheckCircle2,
   Volume2
 } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 export default function TranscribePage() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'processing' | 'done'>('idle');
   const [result, setResult] = useState('');
+  const { toast } = useToast();
 
   const handleTranscribe = async () => {
     if (!file) return;
@@ -33,15 +35,16 @@ export default function TranscribePage() {
       const data = await response.json();
       setResult(data.text);
       setStatus('done');
+      toast("Transcripción completada con éxito", "success");
     } catch (error) {
-      alert("Error en la transcripción");
+      toast("Error al procesar el audio. Verifica el formato.", "error");
       setStatus('idle');
     }
   };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(result);
-    alert("Texto copiado al portapapeles");
+    toast("Texto copiado al portapapeles");
   };
 
   return (    <div className="min-h-screen bg-white text-black p-6 md:p-12 relative overflow-hidden">
