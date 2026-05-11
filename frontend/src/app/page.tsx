@@ -17,7 +17,10 @@ import {
   Share2,
   Heart,
   Menu,
-  X
+  X,
+  Copy,
+  MessageCircle,
+  Download
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -25,8 +28,9 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export default function Home() {
-  const [userCount, setUserCount] = useState(1248);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [userCount, setUserCount] = useState(1248);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -51,8 +55,7 @@ export default function Home() {
   };
 
   const shareLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    alert("¡Enlace copiado! Compártelo con tus compañeros de la AAUCA.");
+    setIsShareModalOpen(true);
   };
 
   return (
@@ -240,6 +243,75 @@ export default function Home() {
         <p className="text-[12px] font-black uppercase tracking-[0.4em] text-yellow-600 mb-4">AAUCAToolsCommunity</p>
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400">CIUDAD DE LA PAZ • OYALA • GUINEA ECUATORIAL</p>
       </footer>
+
+      {/* 5. Share Modal Pro */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            onClick={() => setIsShareModalOpen(false)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+          />
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            className="relative bg-white w-full max-w-xl rounded-[3.5rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.3)] border border-black/5"
+          >
+            <div className="absolute top-8 right-8 z-10">
+              <button onClick={() => setIsShareModalOpen(false)} className="p-3 rounded-full bg-black/5 hover:bg-black/10 transition-all">
+                <X className="w-6 h-6 text-black" />
+              </button>
+            </div>
+
+            <div className="p-12 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 mb-8">
+                <Sparkles className="w-4 h-4 text-yellow-600" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-700">Expandir la Comunidad</span>
+              </div>
+              <h2 className="text-4xl font-black tracking-tighter mb-4 italic uppercase text-black">COMPARTE <span className="text-yellow-500">AAUCATOOLS</span></h2>
+              <p className="text-gray-500 font-medium mb-12 text-lg">Ayuda a tus compañeros de la <span className="text-yellow-600 font-bold">AAUCA</span> a potenciar su éxito académico con IA.</p>
+
+              {/* QR Code Section */}
+              <div className="bg-gray-50 p-8 rounded-[3rem] mb-12 border border-black/5 inline-block mx-auto group">
+                <div className="bg-white p-4 rounded-3xl shadow-xl border border-black/5 group-hover:scale-105 transition-transform duration-500">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent('https://aauca-tools-community.vercel.app')}`} 
+                    alt="QR Code" 
+                    className="w-48 h-48"
+                  />
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mt-6">Escanea para acceder</p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button 
+                  onClick={() => {
+                    const text = encodeURIComponent("🚀 ¡Mira esta plataforma de IA para estudiantes de la AAUCA! Convierte archivos, transcribe clases y chatea con tus libros. Únete aquí: https://aauca-tools-community.vercel.app");
+                    window.open(`https://wa.me/?text=${text}`, '_blank');
+                  }}
+                  className="flex items-center justify-center gap-3 py-5 rounded-2xl bg-[#25D366] text-white font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-green-500/20"
+                >
+                  <MessageCircle className="w-6 h-6" /> WHATSAPP
+                </button>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText("https://aauca-tools-community.vercel.app");
+                    alert("¡Enlace copiado con éxito!");
+                  }}
+                  className="flex items-center justify-center gap-3 py-5 rounded-2xl bg-black text-white font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-black/20"
+                >
+                  <Copy className="w-6 h-6" /> COPIAR ENLACE
+                </button>
+              </div>
+            </div>
+            <div className="bg-yellow-400 py-4 text-center">
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-black">Ciudad de la Paz • Oyala • AAUCA 2024</p>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
