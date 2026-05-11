@@ -37,15 +37,16 @@ export default function Home() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        // Intentamos contar perfiles reales si existe la tabla
         const { count, error } = await supabase
-          .from('document_chunks')
+          .from('profiles')
           .select('*', { count: 'exact', head: true });
         
-        if (!error && count) {
+        if (!error && count !== null) {
           setUserCount(1248 + count);
         }
       } catch (e) {
-        console.log("Fallback a contador estático");
+        console.log("Usando contador base");
       }
     };
     fetchStats();
@@ -154,7 +155,44 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* 2. Bento Grid Herramientas */}
+      {/* 2. Experience Showcase - Premium Visual Gallery */}
+      <section className="py-40 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-20 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 mb-8">
+            <Sparkles className="w-4 h-4 text-yellow-600" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-700">Entorno Tecnológico</span>
+          </div>
+          <h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase italic text-black leading-[0.8] mb-12">CIUDAD <br /> DE LA <span className="text-yellow-500 text-shimmer-yellow">PAZ.</span></h2>
+          <p className="text-gray-500 font-bold uppercase tracking-[0.4em] text-[11px] max-w-xl mx-auto">Explora la infraestructura de vanguardia donde nace la innovación académica de la AAUCA.</p>
+        </div>
+
+        <div className="flex gap-8 px-6 overflow-x-auto pb-20 no-scrollbar snap-x">
+          {[
+            { img: "/img/campus.png", title: "CAMPUS OYALA", tag: "INFRAESTRUCTURA" },
+            { img: "/img/puerta.png", title: "ENTRADA PRINCIPAL", tag: "AAUCA" },
+            { img: "/img/conversor.png", title: "SISTEMA CONVERSOR", tag: "SOFTWARE" },
+            { img: "/img/trancr.png", title: "NOTAS INTELIGENTES", tag: "AI MOTOR" },
+            { img: "/img/audio.png", title: "INTERFAZ DE AUDIO", tag: "UX DESIGN" },
+            { img: "/img/flujo.png", title: "FLUJO DE DATOS", tag: "BACKEND" }
+          ].map((item, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, x: 100 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="min-w-[300px] md:min-w-[500px] h-[400px] md:h-[600px] rounded-[4rem] overflow-hidden relative group snap-center shadow-2xl"
+            >
+              <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-12">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-400 mb-4">{item.tag}</span>
+                <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic uppercase leading-none">{item.title}</h3>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* 2.5 Bento Grid Herramientas */}
       <section id="herramientas" className="max-w-7xl mx-auto px-6 py-32">
         <div className="text-center mb-20">
           <h2 className="text-4xl font-black tracking-tighter uppercase italic text-black">Nuestras <span className="text-yellow-500">Herramientas</span></h2>
@@ -200,42 +238,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2.5 Experience Showcase - New Premium Section */}
-      <section className="py-40 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 mb-20">
-          <div className="flex flex-col md:flex-row items-end justify-between gap-8">
-            <div className="max-w-2xl">
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic text-black leading-[0.9]">GALERÍA DE <br /> <span className="text-yellow-500">EXPERIENCIA.</span></h2>
-              <p className="text-gray-500 font-bold uppercase tracking-[0.3em] text-[10px] mt-6">Explora la infraestructura tecnológica de la Ciudad de la Paz</p>
-            </div>
-          </div>
-        </div>
 
-        <div className="flex gap-8 px-6 overflow-x-auto pb-20 no-scrollbar snap-x">
-          {[
-            { img: "/img/campus.png", title: "CAMPUS OYALA", tag: "INFRAESTRUCTURA" },
-            { img: "/img/puerta.png", title: "ENTRADA PRINCIPAL", tag: "AAUCA" },
-            { img: "/img/conversor.png", title: "SISTEMA CONVERSOR", tag: "SOFTWARE" },
-            { img: "/img/trancr.png", title: "NOTAS INTELIGENTES", tag: "AI MOTOR" },
-            { img: "/img/audio.png", title: "INTERFAZ DE AUDIO", tag: "UX DESIGN" },
-            { img: "/img/flujo.png", title: "FLUJO DE DATOS", tag: "BACKEND" }
-          ].map((item, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, x: 100 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="min-w-[300px] md:min-w-[500px] h-[400px] md:h-[600px] rounded-[4rem] overflow-hidden relative group snap-center"
-            >
-              <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-12">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-400 mb-4">{item.tag}</span>
-                <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic uppercase">{item.title}</h3>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
 
       {/* 3. Filosofía */}
       <section id="nosotros" className="py-32 bg-gray-50 border-y border-black/5 px-6">
@@ -278,7 +281,7 @@ export default function Home() {
       <footer className="py-20 border-t border-black/5 text-center bg-white">
         <img src="/img/logo.png" alt="Logo Footer" className="h-16 mx-auto mb-8 opacity-40 grayscale hover:grayscale-0 transition-all cursor-pointer" />
         <p className="text-[12px] font-black uppercase tracking-[0.4em] text-yellow-600 mb-4">AAUCAToolsCommunity © 2026</p>
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black mb-2">Desarrollado por <span className="text-yellow-600">Tranquilino Mba Ngogo</span></p>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black mb-2">Desarrollado por <span className="text-yellow-600">Tranquilino Mba Ncogo</span></p>
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400">CIUDAD DE LA PAZ • OYALA • 11/05/2026</p>
       </footer>
 

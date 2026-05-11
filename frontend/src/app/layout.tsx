@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AAUCAToolsCommunity | IA por Tranquilino Mba Ngogo",
-  description: "Plataforma de IA desarrollada por Tranquilino Mba Ngogo el 11/05/2026 para estudiantes de la AAUCA.",
+  title: "AAUCAToolsCommunity | IA por Tranquilino Mba Ncogo",
+  description: "Plataforma de IA desarrollada por Tranquilino Mba Ncogo el 11/05/2026 para estudiantes de la AAUCA.",
 };
 
 export default function RootLayout({
