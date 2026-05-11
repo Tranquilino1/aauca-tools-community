@@ -165,7 +165,6 @@ export default function Home() {
             title="Biblioteca Inteligente"
             desc="Sube tus libros y hazles preguntas. Potenciado por Gemini 1.5 Flash para un análisis profundo."
             tag="IA AVANZADA"
-            image="/img/flujo.png"
             color="border-yellow-400/20 hover:border-yellow-400"
           />
           <ToolCard 
@@ -175,7 +174,6 @@ export default function Home() {
             title="Conversor Total"
             desc="PDF a Word, Excel o PPT en segundos manteniendo el diseño."
             tag="DOCUMENTOS"
-            image="/img/conversor.png"
             color="border-blue-500/20 hover:border-blue-500"
           />
           <ToolCard 
@@ -185,7 +183,6 @@ export default function Home() {
             title="Audio-Notas"
             desc="Transcripción de clases grabadas."
             tag="WHISPER V3"
-            image="/img/audio.png"
             color="border-green-500/20 hover:border-green-500"
           />
           <ToolCard 
@@ -197,6 +194,43 @@ export default function Home() {
             tag="GEMINI FLASH"
             color="border-yellow-500/20 hover:border-yellow-500"
           />
+        </div>
+      </section>
+
+      {/* 2.5 Experience Showcase - New Premium Section */}
+      <section className="py-40 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-20">
+          <div className="flex flex-col md:flex-row items-end justify-between gap-8">
+            <div className="max-w-2xl">
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic text-black leading-[0.9]">GALERÍA DE <br /> <span className="text-yellow-500">EXPERIENCIA.</span></h2>
+              <p className="text-gray-500 font-bold uppercase tracking-[0.3em] text-[10px] mt-6">Explora la infraestructura tecnológica de la Ciudad de la Paz</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-8 px-6 overflow-x-auto pb-20 no-scrollbar snap-x">
+          {[
+            { img: "/img/campus.png", title: "CAMPUS OYALA", tag: "INFRAESTRUCTURA" },
+            { img: "/img/puerta.png", title: "ENTRADA PRINCIPAL", tag: "AAUCA" },
+            { img: "/img/conversor.png", title: "SISTEMA CONVERSOR", tag: "SOFTWARE" },
+            { img: "/img/trancr.png", title: "NOTAS INTELIGENTES", tag: "AI MOTOR" },
+            { img: "/img/audio.png", title: "INTERFAZ DE AUDIO", tag: "UX DESIGN" },
+            { img: "/img/flujo.png", title: "FLUJO DE DATOS", tag: "BACKEND" }
+          ].map((item, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, x: 100 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="min-w-[300px] md:min-w-[500px] h-[400px] md:h-[600px] rounded-[4rem] overflow-hidden relative group snap-center"
+            >
+              <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-12">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-400 mb-4">{item.tag}</span>
+                <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic uppercase">{item.title}</h3>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -316,25 +350,26 @@ export default function Home() {
   );
 }
 
-function ToolCard({ icon, title, desc, className, href, tag, image, color }: { icon: React.ReactNode, title: string, desc: string, className?: string, href: string, tag: string, image?: string, color?: string }) {
+function ToolCard({ icon, title, desc, className, href, tag, color }: { icon: React.ReactNode, title: string, desc: string, className?: string, href: string, tag: string, color?: string }) {
   return (
-    <motion.div whileHover={{ y: -5 }} className={`group relative p-10 rounded-[3rem] glass-card-aauca flex flex-col justify-between overflow-hidden border transition-all ${color || 'border-black/5'} ${className}`}>
-      <Link href={href} className="absolute inset-0 z-20" />
-      
-      {image && (
-        <div className="absolute inset-0 z-0 opacity-20 group-hover:opacity-40 transition-opacity">
-          <img src={image} alt="" className="w-full h-full object-cover transition-all duration-700" />
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent"></div>
-        </div>
-      )}
-
+    <motion.div 
+      whileHover={{ y: -8, shadow: "0 25px 50px -12px rgba(0, 0, 0, 0.1)" }} 
+      className={`group relative p-10 rounded-[3rem] bg-gray-50 border-2 transition-all duration-500 flex flex-col justify-between ${color || 'border-black/5'} ${className}`}
+    >
       <div className="relative z-10 flex justify-between items-start">
-        <div className="p-4 rounded-2xl bg-black/5 group-hover:bg-black/10 transition-colors border border-black/5">{icon}</div>
-        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 bg-white/50 backdrop-blur-md px-3 py-1 rounded-full border border-black/5">{tag}</span>
+        <div className="p-5 rounded-3xl bg-white shadow-sm border border-black/5 group-hover:scale-110 transition-transform duration-500">{icon}</div>
+        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 border border-black/5 px-3 py-1.5 rounded-full">{tag}</span>
       </div>
-      <div className="relative z-10">
-        <h3 className="text-2xl font-black mb-3 group-hover:text-black transition-colors uppercase italic tracking-tighter text-black/80">{title}</h3>
-        <p className="text-gray-500 text-sm leading-relaxed font-semibold group-hover:text-gray-700 transition-colors">{desc}</p>
+      
+      <div className="relative z-10 mt-8">
+        <h3 className="text-3xl font-black mb-4 tracking-tighter uppercase italic text-black/90">{title}</h3>
+        <p className="text-gray-500 text-sm leading-relaxed font-medium mb-8">{desc}</p>
+        
+        <Link href={href}>
+          <button className="w-full py-4 rounded-2xl bg-white border border-black/5 text-black font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 group-hover:bg-black group-hover:text-white group-hover:border-black transition-all">
+            Abrir herramienta <ArrowRight className="w-4 h-4" />
+          </button>
+        </Link>
       </div>
     </motion.div>
   );

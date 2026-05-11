@@ -42,18 +42,19 @@ body {
 }
 
 .text-shimmer-yellow {
-  background: linear-gradient(
-    to right,
-    #888 20%,
-    #facc15 40%,
-    #facc15 60%,
-    #888 80%
-  );
+  background: linear-gradient(to right, #facc15, #ffffff, #facc15);
   background-size: 200% auto;
-  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shimmer 5s linear infinite;
+  animation: shimmer 4s linear infinite;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @keyframes shimmer {
