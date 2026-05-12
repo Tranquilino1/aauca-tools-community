@@ -33,12 +33,23 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [userCount, setUserCount] = useState(1248);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
+    // 1. Obtener sesión actual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // 2. Escuchar cambios en la sesión
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    // 3. Obtener estadísticas reales
     const fetchStats = async () => {
       try {
-        // Intentamos contar perfiles reales si existe la tabla
         const { count, error } = await supabase
           .from('profiles')
           .select('*', { count: 'exact', head: true });
@@ -50,8 +61,15 @@ export default function Home() {
         console.log("Usando contador base");
       }
     };
+
     fetchStats();
+    return () => subscription.unsubscribe();
   }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast("Sesión cerrada correctamente", "success");
+  };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -70,10 +88,10 @@ export default function Home() {
       <div className="bg-yellow-400 text-black py-2 px-4 text-center text-[9px] md:text-[10px] font-black uppercase tracking-widest flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 relative z-[110]">
         <div className="flex items-center gap-1">
           <Heart className="w-3 h-3 fill-current text-red-600" />
-          <span>Ya somos <span className="underline font-black">{userCount.toLocaleString()}</span> estudiantes en la plataforma</span>
+          <span>Ya somos <span className="underline font-black">{userCount.toLocaleString()}</span> estudiantes registrados</span>
         </div>
         <button onClick={shareLink} className="bg-black text-white px-3 py-1 rounded-full hover:bg-gray-900 transition-all flex items-center gap-2 text-[8px] md:text-[10px]">
-          <Share2 className="w-3 h-3" /> Compartir enlace
+          <Share2 className="w-3 h-3" /> Compartir plataforma
         </button>
       </div>
 
@@ -92,14 +110,29 @@ export default function Home() {
           <div className="flex items-center gap-6">
             <div className="hidden lg:flex items-center gap-6 text-[11px] font-bold uppercase tracking-widest">
               <a href="#herramientas" className="text-gray-500 hover:text-yellow-600 transition-colors">Herramientas</a>
-              <Link href="/login" className="text-gray-500 hover:text-black transition-colors flex items-center gap-2">
-                <LogIn className="w-4 h-4" /> Iniciar Sesión
-              </Link>
-              <Link href="/register">
-                <button className="px-6 py-2.5 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 transition-all font-black shadow-lg shadow-yellow-500/20 flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" /> Registrarse
-                </button>
-              </Link>
+              
+              {user ? (
+                <>
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-black/5 border border-black/10">
+                    <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center text-[10px] font-black">
+                      {user.email?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-black lowercase">{user.email?.split('@')[0]}</span>
+                  </div>
+                  <button onClick={handleLogout} className="text-red-500 hover:text-red-600 transition-colors font-black">SALIR</button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+                    <LogIn className="w-4 h-4" /> Iniciar Sesión
+                  </Link>
+                  <Link href="/register">
+                    <button className="px-6 py-2.5 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 transition-all font-black shadow-lg shadow-yellow-500/20 flex items-center gap-2">
+                      <UserPlus className="w-4 h-4" /> Registrarse
+                    </button>
+                  </Link>
+                </>
+              )}
             </div>
             
             {/* Mobile Menu Button */}
@@ -120,10 +153,33 @@ export default function Home() {
             className="lg:hidden bg-white/95 backdrop-blur-xl border-b border-black/5 p-6 flex flex-col gap-6 text-center uppercase font-black text-sm tracking-widest"
           >
             <a href="#herramientas" onClick={() => setIsMenuOpen(false)} className="text-gray-500">Herramientas</a>
-            <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-gray-500">Iniciar Sesión</Link>
-            <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-              <button className="w-full py-4 rounded-2xl bg-yellow-400 text-black">Registrarse</button>
-            </Link>
+            
+            {user ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-center gap-3 py-3 rounded-2xl bg-black/5 border border-black/10">
+                  <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-xs font-black">
+                    {user.email?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-black lowercase text-xs">{user.email?.split('@')[0]}</span>
+                </div>
+                <button 
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }} 
+                  className="w-full py-4 rounded-2xl bg-red-500 text-white text-xs"
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-gray-500">Iniciar Sesión</Link>
+                <Link href="/register" onClick={() => setIsMenuOpen(false)}>
+                  <button className="w-full py-4 rounded-2xl bg-yellow-400 text-black">Registrarse</button>
+                </Link>
+              </>
+            )}
           </motion.div>
         )}
       </motion.nav>
