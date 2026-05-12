@@ -40,13 +40,22 @@ export default function Page() {
   };
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ 
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/chat`
-      }
-    });
-    if (error) toast("Error: Verifica la configuración de Google en tu panel.", "error");
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({ 
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/chat`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      console.error("Google login error:", error);
+      toast("Error de Google: Asegúrate de añadir la URL de Vercel en 'Redirect URLs' de Supabase.", "error");
+    }
   };
 
   return (

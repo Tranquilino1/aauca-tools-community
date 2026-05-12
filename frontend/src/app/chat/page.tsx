@@ -50,13 +50,23 @@ export default function ChatPage() {
     formData.append('file', file);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-      const response = await fetch(`${backendUrl}/upload-pdf`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      
+      if (!backendUrl && process.env.NODE_ENV === 'production') {
+        toast("Error: NEXT_PUBLIC_BACKEND_URL no configurada en Vercel", "error");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`${backendUrl || 'http://localhost:8000'}/upload-pdf`, {
         method: 'POST',
         body: formData,
       });
       
-      if (!response.ok) throw new Error("Fallo en el servidor");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Fallo en el servidor");
+      }
       
       const data = await response.json();
       if (data.status === 'success') {
@@ -64,8 +74,9 @@ export default function ChatPage() {
         setCurrentFile(file.name);
         toast("Documento listo para el chat", "success");
       }
-    } catch (error) {
-      toast("Error al procesar el PDF. Revisa tu conexión.", "error");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast(`Error: ${error.message || "No se pudo conectar con el backend"}`, "error");
     } finally {
       setLoading(false);
     }
@@ -81,8 +92,8 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-      const response = await fetch(`${backendUrl}/chat`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      const response = await fetch(`${backendUrl || 'http://localhost:8000'}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ 
@@ -90,10 +101,17 @@ export default function ChatPage() {
           file_id: currentFileId || ''
         })
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Error en la respuesta del motor");
+      }
+
       const data = await response.json();
       setMessages(prev => [...prev, { role: 'ai', content: data.response }]);
-    } catch (error) {
-      toast("Fallo en la respuesta de la IA", "error");
+    } catch (error: any) {
+      console.error("Chat error:", error);
+      toast(`Fallo en la IA: ${error.message || "Conexión perdida"}`, "error");
     } finally {
       setLoading(false);
     }
@@ -105,15 +123,36 @@ export default function ChatPage() {
       return;
     }
     setSummaryLoading(true);
-    toast("Generando resumen ejecutivo...", "success");
+    toast("Generando resumen con Gemini 3 Pro...", "success");
     
-    setTimeout(() => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      
+      // Primero obtenemos el texto relevante (o una muestra) para resumir
+      // Por simplicidad, el backend ya tiene el archivo, así que podríamos tener un endpoint /summarize-pdf
+      // Pero como el backend actual espera 'text', vamos a enviar una petición de resumen
+      
+      const response = await fetch(`${backendUrl}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ 
+          question: "Por favor, genera un resumen ejecutivo y estructurado de este documento, destacando los puntos más importantes.",
+          file_id: currentFileId
+        })
+      });
+      
+      if (!response.ok) throw new Error();
+      
+      const data = await response.json();
       setMessages(prev => [...prev, { 
         role: 'ai', 
-        content: `### Resumen de: ${currentFile}\n\nEste documento ha sido analizado por el motor de IA de la AAUCA. Se han identificado los conceptos clave y la estructura principal para facilitar tu estudio.` 
+        content: `### 📝 Resumen Ejecutivo\n\n${data.response}` 
       }]);
+    } catch (error) {
+      toast("Error al generar el resumen. Verifica la conexión con el backend.", "error");
+    } finally {
       setSummaryLoading(false);
-    }, 2000);
+    }
   };
 
   return (
