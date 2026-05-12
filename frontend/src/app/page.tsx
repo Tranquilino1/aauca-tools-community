@@ -368,7 +368,7 @@ export default function Home() {
 function ToolCard({ icon, title, desc, className, href, tag, color }: { icon: React.ReactNode, title: string, desc: string, className?: string, href: string, tag: string, color?: string }) {
   return (
     <motion.div 
-      whileHover={{ y: -8, shadow: "0 25px 50px -12px rgba(0, 0, 0, 0.1)" }} 
+      whileHover={{ y: -8, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.1)" }} 
       className={`group relative p-10 rounded-[3rem] bg-gray-50 border-2 transition-all duration-500 flex flex-col justify-between ${color || 'border-black/5'} ${className}`}
     >
       <div className="relative z-10 flex justify-between items-start">
