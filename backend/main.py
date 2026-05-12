@@ -37,11 +37,44 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Clientes de IA
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+GEMINI_KEY = os.getenv("GEMINI_API_KEY")
+GROQ_KEY = os.getenv("GROQ_API_KEY")
 
-# Inicializar modelo Gemini 1.5 Flash para máxima velocidad (Etiquetado como Gemini 3 Pro en UI)
+genai.configure(api_key=GEMINI_KEY)
+groq_client = Groq(api_key=GROQ_KEY) if GROQ_KEY else None
+
+# Inicializar modelo Gemini 1.5 Flash para máxima velocidad
 gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+
+async def get_ai_response(prompt: str, system_instruction: str = None):
+    """Motor de IA híbrido con fallback automático para estabilidad total"""
+    # Intentar con Gemini primero
+    if GEMINI_KEY:
+        try:
+            full_prompt = f"{system_instruction}\n\n{prompt}" if system_instruction else prompt
+            response = gemini_model.generate_content(full_prompt)
+            return response.text
+        except Exception as e:
+            logger.error(f"Gemini Error, intentando fallback a Groq: {str(e)}")
+    
+    # Fallback a Groq (Llama 3) si Gemini falla o no hay key
+    if GROQ_KEY and groq_client:
+        try:
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+            
+            completion = groq_client.chat.completions.create(
+                model="llama3-8b-8192", # Modelo ultra rápido
+                messages=messages,
+                temperature=0.7,
+            )
+            return completion.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Groq Fallback Error: {str(e)}")
+    
+    return "Lo siento, el motor de IA está temporalmente fuera de servicio. Verifica tus API Keys en el servidor."
 
 UPLOAD_DIR = "uploads"
 CONVERT_DIR = "converted"
@@ -105,6 +138,9 @@ async def download_file(filename: str):
 
 @app.post("/transcribe")
 async def transcribe(file: UploadFile = File(...)):
+    if not GROQ_KEY or not groq_client:
+         raise HTTPException(status_code=500, detail="Groq API Key no configurada para transcripción.")
+
     temp_path = f"temp_{file.filename}"
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -122,13 +158,9 @@ async def transcribe(file: UploadFile = File(...)):
 
 @app.post("/summarize")
 async def summarize(text: str = Form(...)):
-    try:
-        prompt = f"Eres un experto académico de la AAUCA. Resume el contenido de forma estructurada, usando negritas y puntos clave:\n\n{text}"
-        response = gemini_model.generate_content(prompt)
-        return {"summary": response.text}
-    except Exception as e:
-        logger.error(f"Summarize error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error en el motor Gemini al resumir.")
+    instruction = "Eres un experto académico de la AAUCA. Resume el contenido de forma estructurada, usando negritas y puntos clave."
+    response = await get_ai_response(f"Resume esto:\n\n{text}", instruction)
+    return {"summary": response}
 
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
@@ -153,26 +185,15 @@ async def upload_pdf(file: UploadFile = File(...)):
 async def chat_with_docs(question: str = Form(...), file_id: str = Form(None)):
     try:
         context_chunks = await rag.query(question, file_id)
+        context_text = "\n".join([c['content'] for c in context_chunks]) if context_chunks else "Sin contexto adicional del documento."
         
-        if not context_chunks and file_id:
-            context_text = "No se encontró información específica en el documento cargado."
-        else:
-            context_text = "\n".join([c['content'] for c in context_chunks]) if context_chunks else "Sin contexto adicional."
+        instruction = f"Eres el Tutor de IA de Élite de la AAUCA, desarrollado por Tranquilino Mba Ncogo. Ayuda al estudiante usando este contexto:\n\n{context_text}"
+        response = await get_ai_response(question, instruction)
         
-        prompt = f"""
-        SISTEMA: Eres el Tutor de IA de Élite de la AAUCA, desarrollado por Tranquilino Mba Ncogo. 
-        Tu misión es ayudar a los estudiantes con respuestas precisas, rápidas y académicas.
-        CONTEXTO DEL DOCUMENTO:
-        {context_text}
-        
-        PREGUNTA DEL ESTUDIANTE: {question}
-        """
-        
-        response = gemini_model.generate_content(prompt)
-        return {"response": response.text}
+        return {"response": response}
     except Exception as e:
         logger.error(f"Chat error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error en el motor Gemini 3 Pro. Verifica la API Key.")
+        raise HTTPException(status_code=500, detail="Error crítico en el motor de chat.")
 
 @app.post("/clear-cache")
 async def clear_cache(file_id: str = Form(None)):
