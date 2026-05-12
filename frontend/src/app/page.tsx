@@ -67,6 +67,13 @@ export default function Home() {
   }, []);
 
   const handleLogout = async () => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      await fetch(`${backendUrl}/clear-cache`, { method: 'POST' });
+    } catch (e) {
+      console.error("Error al limpiar cache remota");
+    }
+    
     await supabase.auth.signOut();
     // Limpieza agresiva de caché y estado local
     localStorage.clear();

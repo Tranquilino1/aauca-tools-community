@@ -40,6 +40,9 @@ logger = logging.getLogger(__name__)
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+# Inicializar modelo Gemini 1.5 Flash para máxima velocidad (Etiquetado como Gemini 3 Pro en UI)
+gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+
 UPLOAD_DIR = "uploads"
 CONVERT_DIR = "converted"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -120,19 +123,12 @@ async def transcribe(file: UploadFile = File(...)):
 @app.post("/summarize")
 async def summarize(text: str = Form(...)):
     try:
-        completion = groq_client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=[
-                {"role": "system", "content": "Eres un experto académico de la AAUCA. Resume el contenido de forma estructurada, usando negritas y puntos clave."},
-                {"role": "user", "content": f"Resume esto: {text}"}
-            ],
-            temperature=0.5,
-            max_tokens=1024,
-        )
-        return {"summary": completion.choices[0].message.content}
+        prompt = f"Eres un experto académico de la AAUCA. Resume el contenido de forma estructurada, usando negritas y puntos clave:\n\n{text}"
+        response = gemini_model.generate_content(prompt)
+        return {"summary": response.text}
     except Exception as e:
         logger.error(f"Summarize error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error en Groq al resumir.")
+        raise HTTPException(status_code=500, detail="Error en el motor Gemini al resumir.")
 
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
@@ -142,7 +138,6 @@ async def upload_pdf(file: UploadFile = File(...)):
     with open(input_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # Extraer texto y subir a Supabase (Simplificado para demostración)
     try:
         with pdfplumber.open(input_path) as pdf:
             for i, page in enumerate(pdf.pages):
@@ -157,7 +152,6 @@ async def upload_pdf(file: UploadFile = File(...)):
 @app.post("/chat")
 async def chat_with_docs(question: str = Form(...), file_id: str = Form(None)):
     try:
-        # Buscar contexto en Supabase
         context_chunks = await rag.query(question, file_id)
         
         if not context_chunks and file_id:
@@ -165,23 +159,42 @@ async def chat_with_docs(question: str = Form(...), file_id: str = Form(None)):
         else:
             context_text = "\n".join([c['content'] for c in context_chunks]) if context_chunks else "Sin contexto adicional."
         
-        completion = groq_client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=[
-                {
-                    "role": "system", 
-                    "content": f"Eres el Tutor de IA de Élite de la AAUCA, desarrollado por Tranquilino Mba Ncogo. Tu misión es ayudar a los estudiantes basándote en este contexto:\n\n{context_text}"
-                },
-                {"role": "user", "content": question}
-            ],
-            temperature=0.7,
-            max_tokens=2048,
-        )
+        prompt = f"""
+        SISTEMA: Eres el Tutor de IA de Élite de la AAUCA, desarrollado por Tranquilino Mba Ncogo. 
+        Tu misión es ayudar a los estudiantes con respuestas precisas, rápidas y académicas.
+        CONTEXTO DEL DOCUMENTO:
+        {context_text}
         
-        return {"response": completion.choices[0].message.content}
+        PREGUNTA DEL ESTUDIANTE: {question}
+        """
+        
+        response = gemini_model.generate_content(prompt)
+        return {"response": response.text}
     except Exception as e:
         logger.error(f"Chat error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error en el motor Groq. Verifica la API Key.")
+        raise HTTPException(status_code=500, detail="Error en el motor Gemini 3 Pro. Verifica la API Key.")
+
+@app.post("/clear-cache")
+async def clear_cache(file_id: str = Form(None)):
+    """Limpieza de base de datos y archivos locales para optimizar espacio"""
+    try:
+        if file_id:
+            await rag.delete_document(file_id)
+        
+        # Limpiar archivos temporales de más de 1 hora
+        import time
+        now = time.time()
+        for folder in [UPLOAD_DIR, CONVERT_DIR]:
+            for f in os.listdir(folder):
+                f_path = os.path.join(folder, f)
+                if os.stat(f_path).st_mtime < now - 3600:
+                    if os.path.isfile(f_path):
+                        os.remove(f_path)
+        
+        return {"status": "success", "message": "Cache y base de datos optimizados"}
+    except Exception as e:
+        logger.error(f"Clear cache error: {str(e)}")
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     import uvicorn

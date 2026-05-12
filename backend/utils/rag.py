@@ -48,3 +48,11 @@ class RAGManager:
         except Exception as e:
             print(f"Error en búsqueda vectorial: {e}")
             return []
+
+    async def delete_document(self, file_id: str):
+        """Elimina todos los fragmentos asociados a un archivo de la base de datos"""
+        try:
+            return self.supabase.table("document_chunks").delete().eq("file_id", file_id).execute()
+        except Exception as e:
+            print(f"Error al eliminar documento: {e}")
+            return None

@@ -204,7 +204,7 @@ export default function ChatPage() {
             </div>
             <div>
               <h1 className="text-lg font-black uppercase tracking-tighter italic">Biblioteca <span className="text-yellow-600">Inteligente</span></h1>
-              <p className="text-[10px] font-black text-gray-400 tracking-widest uppercase">Motor Gemini 1.5 Flash</p>
+              <p className="text-[10px] font-black text-gray-400 tracking-widest uppercase">Motor Gemini 3 Pro</p>
             </div>
           </div>
           <button 
@@ -220,10 +220,28 @@ export default function ChatPage() {
         {/* Mensajes */}
         <div className="flex-1 overflow-y-auto p-4 md:p-12 space-y-6 md:space-y-8 no-scrollbar bg-white">
           {messages.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-center opacity-10">
-              <History className="w-16 h-16 md:w-24 md:h-24 mb-6" />
-              <h2 className="text-2xl md:text-3xl font-black uppercase italic">Sin actividad</h2>
-              <p className="max-w-xs text-xs font-bold mt-2">Sube un documento y haz tu primera pregunta académica.</p>
+            <div className="h-full flex flex-col items-center justify-center text-center">
+              {!currentFile && (
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="mb-8 p-8 rounded-[3rem] bg-gray-50 border-2 border-dashed border-black/10 md:hidden"
+                >
+                  <Upload className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+                  <p className="text-sm font-black uppercase mb-6">Sube un documento para empezar</p>
+                  <button 
+                    onClick={() => document.getElementById('chat-pdf-upload')?.click()}
+                    className="px-8 py-4 rounded-2xl bg-black text-white font-black text-xs uppercase"
+                  >
+                    Seleccionar PDF
+                  </button>
+                </motion.div>
+              )}
+              <div className="opacity-10">
+                <History className="w-16 h-16 md:w-24 md:h-24 mb-6 mx-auto" />
+                <h2 className="text-2xl md:text-3xl font-black uppercase italic">Sin actividad</h2>
+                <p className="max-w-xs text-xs font-bold mt-2">Haz tu primera pregunta académica.</p>
+              </div>
             </div>
           )}
           

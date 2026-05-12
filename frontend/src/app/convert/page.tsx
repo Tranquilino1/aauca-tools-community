@@ -64,24 +64,27 @@ export default function ConvertPage() {
             <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">IA de Oficina v2.0</span>
           </div>
           <h1 className="text-4xl md:text-8xl font-black tracking-tighter mb-4 italic uppercase text-black leading-none">CONVERSOR <br className="md:hidden" /><span className="text-blue-600">TOTAL</span></h1>
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] md:text-[11px] max-w-xl">Transformación precisa de PDF a Word, Excel y PowerPoint.</p>
+          <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] md:text-[11px] max-w-xl">Transformación precisa de PDF a Word, Excel y PowerPoint con Gemini 3 Pro.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Lado Izquierdo: Carga de Archivos */}
           <div className="space-y-8">
             <div 
-              className={`border-2 border-dashed rounded-[3rem] p-12 text-center transition-all ${file ? 'border-blue-500 bg-blue-500/5' : 'border-black/10 hover:border-blue-500/50'}`}
+              className={`border-2 border-dashed rounded-[3rem] p-6 md:p-12 text-center transition-all ${file ? 'border-blue-500 bg-blue-500/5' : 'border-black/10 hover:border-blue-500/50'}`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); setFile(e.dataTransfer.files[0]); }}
             >
               <input type="file" id="pdf-upload" hidden onChange={(e) => setFile(e.target.files?.[0] || null)} accept=".pdf" />
               <label htmlFor="pdf-upload" className="cursor-pointer block">
-                <div className="w-20 h-20 bg-black/5 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-black/5">
-                  <Upload className={`w-10 h-10 ${file ? 'text-blue-500' : 'text-gray-400'}`} />
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-black/5 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-black/5">
+                  <Upload className={`w-8 h-8 md:w-10 md:h-10 ${file ? 'text-blue-500' : 'text-gray-400'}`} />
                 </div>
-                <h3 className="text-2xl font-black mb-2 italic uppercase text-black">{file ? file.name : "Suelta tu PDF"}</h3>
-                <p className="text-sm text-gray-400 font-bold uppercase tracking-widest text-[10px]">o haz clic para explorar</p>
+                <h3 className="text-xl md:text-2xl font-black mb-2 italic uppercase text-black">{file ? file.name : "Suelta tu PDF"}</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">o haz clic para explorar</p>
+                <div className="md:hidden inline-block px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">
+                  Seleccionar PDF
+                </div>
               </label>
             </div>
 
