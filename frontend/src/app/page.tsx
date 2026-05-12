@@ -68,7 +68,12 @@ export default function Home() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    toast("Sesión cerrada correctamente", "success");
+    // Limpieza agresiva de caché y estado local
+    localStorage.clear();
+    sessionStorage.clear();
+    // Opcional: Recargar para limpiar estados de React
+    window.location.href = '/';
+    toast("Sesión cerrada y datos locales destruidos", "success");
   };
 
   const itemVariants = {
@@ -233,7 +238,7 @@ export default function Home() {
             className="md:col-span-2 md:row-span-2"
             icon={<Library className="w-16 h-16 md:w-24 md:h-24 text-yellow-500" />}
             title="Biblioteca Inteligente"
-            desc="Sube tus libros y hazles preguntas en tiempo real. Análisis profundo potenciado por Gemini 1.5 Flash."
+            desc="Sube tus libros y hazles preguntas en tiempo real. Análisis profundo potenciado por Gemini 3 Pro."
             tag="PREMIUM AI"
             color="border-yellow-400/20 hover:border-yellow-400"
           />
@@ -260,8 +265,8 @@ export default function Home() {
             className="md:col-span-1"
             icon={<BrainCircuit className="w-16 h-16 text-yellow-500" />}
             title="Sintetizador"
-            desc="Resúmenes ejecutivos de libros extensos."
-            tag="GEMINI PRO"
+            desc="Resúmenes ejecutivos de libros extensos con inteligencia de última generación."
+            tag="GEMINI 3 PRO"
             color="border-yellow-500/20 hover:border-yellow-500"
           />
         </div>
